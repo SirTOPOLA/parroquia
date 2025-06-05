@@ -1,108 +1,122 @@
- 
+-- Crear base de datos
+CREATE DATABASE IF NOT EXISTS parroquia_db;
+USE parroquia_db;
 
-
-
--- Tabla principal de personas
-CREATE TABLE persona (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    nombres VARCHAR(100) NOT NULL,
-    apellidos VARCHAR(100) NOT NULL,
-    fecha_nacimiento DATE,
+-- Tabla parroquias
+CREATE TABLE parroquias (
+    id_parroquia INT PRIMARY KEY AUTO_INCREMENT,
+    nombre VARCHAR(100) NOT NULL,
     direccion VARCHAR(255),
-    telefono VARCHAR(20),
-    correo VARCHAR(100),
-    genero ENUM('masculino', 'femenino', 'otro') DEFAULT NULL
+    telefono VARCHAR(20)
 );
 
+CREATE TABLE feligreses (
+    id_feligres INT PRIMARY KEY AUTO_INCREMENT,
+    id_parroquia INT,
+    nombre VARCHAR(100) NOT NULL,
+    apellido VARCHAR(100),
+    fecha_nacimiento DATE,
+    genero ENUM('M', 'F', 'Otro'),
+    direccion VARCHAR(255),
+    telefono VARCHAR(20) default null,
+    estado_civil ENUM('soltero', 'casado', 'viudo', 'separado') default null,
+    matrimonio JSON, -- <-- Aquí se guarda información sobre el matrimonio
+    FOREIGN KEY (id_parroquia) REFERENCES parroquias(id_parroquia)
+);
 
+-- Tabla sacramentos (bautismo, comunión, confirmación, matrimonio)
+CREATE TABLE sacramentos (
+    id_sacramento INT PRIMARY KEY AUTO_INCREMENT,
+    nombre VARCHAR(50) NOT NULL -- Ej: bautismo, comunion, confirmacion, matrimonio
+);
 
--- Tipos de sacramentos
-CREATE TABLE sacramento (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    nombre ENUM('bautismo', 'comunion', 'confirmacion', 'matrimonio') NOT NULL UNIQUE,
+ 
+-- Relación feligrés-sacramento (registro individual de sacramentos)
+CREATE TABLE feligres_sacramento (
+    id_feligres INT,
+    id_sacramento INT,
+    fecha DATE,
+    lugar VARCHAR(255),
+    observaciones TEXT,
+    PRIMARY KEY (id_feligres, id_sacramento),
+    FOREIGN KEY (id_feligres) REFERENCES feligreses(id_feligres),
+    FOREIGN KEY (id_sacramento) REFERENCES sacramentos(id_sacramento)
+);
+
+-- Tabla parientes (padres, padrinos u otros responsables)
+CREATE TABLE parientes (
+    id_pariente INT PRIMARY KEY AUTO_INCREMENT,
+    nombre VARCHAR(100) NOT NULL,
+    apellido VARCHAR(100),
+    telefono VARCHAR(20),
+    tipo_pariente ENUM('padre', 'madre', 'padrino', 'madrina', 'otro'),
+    datos_adicionales JSON
+);
+
+-- Relación feligrés-parientes
+CREATE TABLE feligres_parientes (
+    id_feligres INT,
+    id_pariente INT,
+    tipo_relacion ENUM('padre', 'madre', 'padrino_bautismo', 'padrino_confirmacion', 'otro'),
+    id_sacramento INT DEFAULT NULL,
+    PRIMARY KEY (id_feligres, id_pariente, tipo_relacion),
+    FOREIGN KEY (id_feligres) REFERENCES feligreses(id_feligres),
+    FOREIGN KEY (id_pariente) REFERENCES parientes(id_pariente),
+    FOREIGN KEY (id_sacramento) REFERENCES sacramentos(id_sacramento)
+);
+
+-- Tabla catequesis (formación religiosa)
+CREATE TABLE catequesis (
+    id_catequesis INT PRIMARY KEY AUTO_INCREMENT,
+    nombre VARCHAR(100),
     descripcion TEXT
 );
 
--- Catequesis (preparación para sacramentos)
-CREATE TABLE catequesis (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    nombre VARCHAR(100) NOT NULL,
-    sacramento_id INT NOT NULL,
+-- Relación feligrés-catequesis
+CREATE TABLE feligres_catequesis (
+    id_feligres INT,
+    id_catequesis INT,
+    fecha_inscripcion DATE,
+    PRIMARY KEY (id_feligres, id_catequesis),
+    FOREIGN KEY (id_feligres) REFERENCES feligreses(id_feligres),
+    FOREIGN KEY (id_catequesis) REFERENCES catequesis(id_catequesis)
+);
+
+-- Relación parientes-catequesis (padres/padrinos que participan)
+CREATE TABLE pariente_catequesis (
+    id_pariente INT,
+    id_catequesis INT,
+    fecha_inscripcion DATE,
+    PRIMARY KEY (id_pariente, id_catequesis),
+    FOREIGN KEY (id_pariente) REFERENCES parientes(id_pariente),
+    FOREIGN KEY (id_catequesis) REFERENCES catequesis(id_catequesis)
+);
+
+-- Tabla cursos dentro de catequesis
+CREATE TABLE cursos (
+    id_curso INT PRIMARY KEY AUTO_INCREMENT,
+    id_catequesis INT,
+    nombre VARCHAR(100),
+    descripcion TEXT,
     fecha_inicio DATE,
     fecha_fin DATE,
-    catequista_id INT,
-    observaciones TEXT,
-    FOREIGN KEY (sacramento_id) REFERENCES sacramento(id)
-        ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (catequista_id) REFERENCES persona(id)
-        ON DELETE SET NULL ON UPDATE CASCADE
+    FOREIGN KEY (id_catequesis) REFERENCES catequesis(id_catequesis)
 );
 
--- Relación de personas inscritas en catequesis
-CREATE TABLE participante_catequesis (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    persona_id INT NOT NULL,
-    catequesis_id INT NOT NULL,
-    fecha_inscripcion DATE DEFAULT CURRENT_DATE,
-    FOREIGN KEY (persona_id) REFERENCES persona(id)
-        ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (catequesis_id) REFERENCES catequesis(id)
-        ON DELETE CASCADE ON UPDATE CASCADE
-);
-
--- Actos sacramentales celebrados
-CREATE TABLE acto_sacramental (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    persona_id INT NOT NULL,
-    sacramento_id INT NOT NULL,
-    parroquia_id INT,
-    parroco_id INT,
-    fecha DATE NOT NULL,
-    libro VARCHAR(50),
-    folio VARCHAR(50),
-    partida VARCHAR(50),
-    observaciones TEXT,
-    certificado_emitido BOOLEAN DEFAULT FALSE,
-    FOREIGN KEY (persona_id) REFERENCES persona(id)
-        ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (sacramento_id) REFERENCES sacramento(id)
-        ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (parroquia_id) REFERENCES parroquia(id)
-        ON DELETE SET NULL ON UPDATE CASCADE,
-    FOREIGN KEY (parroco_id) REFERENCES persona(id)
-        ON DELETE SET NULL ON UPDATE CASCADE
-);
-
--- Relaciones familiares o espirituales por acto sacramental
-CREATE TABLE relaciones_persona (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    acto_sacramental_id INT NOT NULL,
-    persona_id INT NOT NULL,
-    rol ENUM('padre', 'madre', 'padrino', 'madrina') NOT NULL,
-    FOREIGN KEY (acto_sacramental_id) REFERENCES acto_sacramental(id)
-        ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (persona_id) REFERENCES persona(id)
-        ON DELETE CASCADE ON UPDATE CASCADE
-);
-
--- Usuarios del sistema (vinculados a persona)
-CREATE TABLE usuarios (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    persona_id INT NOT NULL,
-    usuario VARCHAR(50) UNIQUE NOT NULL,
-    contrasena VARCHAR(255) NOT NULL,
-    rol ENUM('admin', 'secretario', 'archivista', 'parroco') NOT NULL,
-    estado BOOLEAN DEFAULT TRUE,
-    FOREIGN KEY (persona_id) REFERENCES persona(id)
-        ON DELETE CASCADE ON UPDATE CASCADE
-);
-
+-- Tabla catequistas
 CREATE TABLE catequistas (
-    persona_id INT PRIMARY KEY,
-    especialidad VARCHAR(100),
-    FOREIGN KEY (persona_id) REFERENCES persona(id)
-        ON DELETE CASCADE ON UPDATE CASCADE
+    id_catequista INT PRIMARY KEY AUTO_INCREMENT,
+    nombre VARCHAR(100),
+    apellido VARCHAR(100),
+    telefono VARCHAR(20),
+    correo VARCHAR(100)
 );
 
-
- 
+-- Relación curso-catequistas
+CREATE TABLE curso_catequistas (
+    id_curso INT,
+    id_catequista INT,
+    PRIMARY KEY (id_curso, id_catequista),
+    FOREIGN KEY (id_curso) REFERENCES cursos(id_curso),
+    FOREIGN KEY (id_catequista) REFERENCES catequistas(id_catequista)
+);
