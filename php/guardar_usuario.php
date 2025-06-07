@@ -1,14 +1,15 @@
 <?php
 require '../includes/conexion.php';
-
+ 
 // Sanitización y validación
-$persona_id = $_POST['persona_id'] ?? null;
+$nombre = trim($_POST['nombre'] ?? '');
+$dni = trim($_POST['dni'] ?? '');
 $usuario = trim($_POST['usuario'] ?? '');
 $contrasena = trim($_POST['contrasena'] ?? '');
-$rol = $_POST['rol'] ?? null;
+$rol = $_POST['rol'] ?? '';
 
-if (!$persona_id || !$usuario || !$contrasena || !$rol) {
-    header('Location: ../admin/usuario.php?mensaje=Faltan datos');
+if (!$nombre || !$dni || !$usuario || !$contrasena || !$rol) {
+    header('Location: ../admin/usuarios.php?mensaje=Faltan datos');
     exit;
 }
 
@@ -18,7 +19,7 @@ try {
     $stmt->execute([$usuario]);
 
     if ($stmt->fetch()) {
-        header('Location: ../admin/usuario.php?mensaje=Usuario ya existe');
+        header('Location: ../admin/usuarios.php?mensaje=Usuario ya existe');
         exit;
     }
 
@@ -26,11 +27,11 @@ try {
     $hash = password_hash($contrasena, PASSWORD_BCRYPT);
 
     // Insertar usuario
-    $stmt = $pdo->prepare("INSERT INTO usuarios (persona_id, usuario, contrasena, rol) VALUES (?, ?, ?, ?)");
-    $stmt->execute([$persona_id, $usuario, $hash, $rol]);
+    $stmt = $pdo->prepare("INSERT INTO usuarios (nombre, dni, usuario, contrasena, rol) VALUES (?, ?, ?, ?, ?)");
+    $stmt->execute([$nombre, $dni, $usuario, $hash, $rol]);
 
-    header('Location: ../admin/usuario.php?mensaje=registrado');
+    header('Location: ../admin/usuarios.php?mensaje=registrado');
 } catch (PDOException $e) {
     error_log("Error al registrar usuario: " . $e->getMessage());
-    header('Location: ../admin/usuario.php?mensaje=Error');
+    header('Location: ../admin/usuarios.php?mensaje=error');
 }

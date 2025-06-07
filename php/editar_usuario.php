@@ -2,31 +2,35 @@
 require '../includes/conexion.php';
 
 $id = $_POST['id'] ?? null;
-$persona_id = $_POST['persona_id'] ?? null;
+$nombre = trim($_POST['nombre'] ?? '');
+$dni = trim($_POST['dni'] ?? '');
 $usuario = trim($_POST['usuario'] ?? '');
 $contrasena = trim($_POST['contrasena'] ?? '');
-$rol = $_POST['rol'] ?? null;
-$estado = isset($_POST['estado']) ? 1 : 0;
+$rol = $_POST['rol'] ?? '';
+$estado = isset($_POST['estado']) ? (int)$_POST['estado'] : 1;
 
-if (!$id || !$persona_id || !$usuario || !$rol) {
-    header('Location: ../admin/usuario.php?mensaje=Faltan datos');
+if (!$id || !$nombre || !$dni || !$usuario || !$rol) {
+    header('Location: ../admin/usuarios.php?mensaje=Faltan datos');
     exit;
 }
 
 try {
     if (!empty($contrasena)) {
-        // Si se envía nueva contraseña
+        // Si se proporcionó nueva contraseña
         $hash = password_hash($contrasena, PASSWORD_BCRYPT);
-        $stmt = $pdo->prepare("UPDATE usuarios SET persona_id = ?, usuario = ?, contrasena = ?, rol = ?, estado = ? WHERE id = ?");
-        $stmt->execute([$persona_id, $usuario, $hash, $rol, $estado, $id]);
+        $sql = "UPDATE usuarios SET nombre = ?, dni = ?, usuario = ?, contrasena = ?, rol = ?, estado = ? WHERE id = ?";
+        $params = [$nombre, $dni, $usuario, $hash, $rol, $estado, $id];
     } else {
-        // Si no se cambia contraseña
-        $stmt = $pdo->prepare("UPDATE usuarios SET persona_id = ?, usuario = ?, rol = ?, estado = ? WHERE id = ?");
-        $stmt->execute([$persona_id, $usuario, $rol, $estado, $id]);
+        // Sin cambiar contraseña
+        $sql = "UPDATE usuarios SET nombre = ?, dni = ?, usuario = ?, rol = ?, estado = ? WHERE id = ?";
+        $params = [$nombre, $dni, $usuario, $rol, $estado, $id];
     }
 
-    header('Location: ../admin/usuario.php?mensaje=editado');
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute($params);
+
+    header('Location: ../admin/usuarios.php?mensaje=actualizado');
 } catch (PDOException $e) {
-    error_log("Error al editar usuario: " . $e->getMessage());
-    header('Location: ../admin/usuario.php?mensaje=Error');
+    error_log("Error al actualizar usuario: " . $e->getMessage());
+    header('Location: ../admin/usuarios.php?mensaje=error');
 }

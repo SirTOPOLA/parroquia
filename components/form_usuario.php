@@ -6,11 +6,8 @@ $estado = $datosUsuario['estado'] ?? 1;
 $contrasena = ''; // Solo para el formulario, no mostrar el hash
 // Obtener personas para el select
 $personasStmt = $pdo->query("
-    SELECT p.id, CONCAT(p.nombres, ' ', p.apellidos) AS nombre_completo
-    FROM persona p
-    LEFT JOIN participante_catequesis pc ON p.id = pc.persona_id
-    WHERE pc.persona_id IS NULL
-    ORDER BY p.nombres
+    SELECT  
+   * FROM usuarios  
 ");
 $personasLista = $personasStmt->fetchAll(PDO::FETCH_ASSOC);
 

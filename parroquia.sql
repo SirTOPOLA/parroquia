@@ -16,7 +16,7 @@ CREATE TABLE feligreses (
     nombre VARCHAR(100) NOT NULL,
     apellido VARCHAR(100),
     fecha_nacimiento DATE,
-    genero ENUM('M', 'F', 'Otro'),
+    genero ENUM('M', 'F'),
     direccion VARCHAR(255),
     telefono VARCHAR(20) default null,
     estado_civil ENUM('soltero', 'casado', 'viudo', 'separado') default null,

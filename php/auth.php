@@ -4,30 +4,47 @@ require_once '../includes/conexion.php';
 
 // Validar entrada
 $usuario = trim($_POST['usuario'] ?? '');
-$contraseña = $_POST['contraseña'] ?? '';
+$contrasena = $_POST['contrasena'] ?? '';
 
-if (empty($usuario) || empty($contraseña)) { 
-    header("Location: ../index.php?=Usuario o contraseña vacíos.");
+if (empty($usuario) || empty($contrasena)) {
+    // Redirigir con mensaje codificado
+    header("Location: ../index.php?mensaje=" . urlencode("Usuario y contraseña obligatorios"));
     exit;
 }
 
-// Buscar usuario y verificar que esté activo (estado = 1)
-$sql = "SELECT u.id, p.nombres, p.apellidos, u.contrasena, u.rol, u.estado 
-        FROM usuarios u
-        JOIN persona p ON u.persona_id = p.id
-        WHERE u.usuario = ?";
-$stmt = $pdo->prepare($sql);
-$stmt->execute([$usuario]);
-$usuarioBD = $stmt->fetch(PDO::FETCH_ASSOC);
+try {
+    // Buscar usuario y verificar estado
+    $sql = "SELECT id, nombre, usuario, contrasena, rol, estado FROM usuarios WHERE usuario = ?";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([$usuario]);
+    $usuarioBD = $stmt->fetch(PDO::FETCH_ASSOC);
 
-if ($usuarioBD && $usuarioBD['estado'] && password_verify($contraseña, $usuarioBD['contrasena'])) {
-    // Inicio de sesión exitoso
-    $_SESSION['usuario_id'] = $usuarioBD['id'];
-    $_SESSION['nombre'] = $usuarioBD['nombres'] . ' ' . $usuarioBD['apellidos'];
-    $_SESSION['rol'] = $usuarioBD['rol'];
+    if (!$usuarioBD) {
+        header("Location: ../index.php?mensaje=" . urlencode("El usuario no existe"));
+        exit;
+    }
+
+    if (!$usuarioBD['estado']) {
+        header("Location: ../index.php?mensaje=" . urlencode("Usuario inactivo, contacte al administrador"));
+        exit;
+    }
+
+    if (!password_verify($contrasena, $usuarioBD['contrasena'])) {
+        header("Location: ../index.php?mensaje=" . urlencode("Contraseña incorrecta"));
+        exit;
+    }
+
+    // Autenticación exitosa
+    $_SESSION['usuario'] = [
+        'id' => $usuarioBD['id'],
+        'nombre' => $usuarioBD['nombre'],
+        'rol' => $usuarioBD['rol']
+    ];
     header("Location: ../admin/index.php");
     exit;
-} else {
-    header("Location: ../index.php?=Credenciales incorrectas o usuario inactivo.");
-   
+
+} catch (PDOException $e) {
+    error_log("Error de login: " . $e->getMessage());
+    header("Location: ../index.php?mensaje=" . urlencode("Error interno, intenta más tarde"));
+    exit;
 }

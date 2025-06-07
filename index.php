@@ -1,5 +1,12 @@
+<?php
+session_start();
 
-
+// Si no hay sesión iniciada o no hay usuario, redirigir al login
+if (isset($_SESSION['usuario'])) {
+    header('Location: admin/index.php');
+    exit;
+}
+?>
 <!DOCTYPE html>
 <html lang="es">
   <head>
@@ -61,6 +68,14 @@
 <body>
 
   <div class="login-wrapper">
+  <?php if (isset($_GET['mensaje'])): ?>
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <?= htmlspecialchars($_GET['mensaje']) ?>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+<?php endif; ?>
+
+
     <div class="login-box">
       <h3 class="text-center mb-4"><i class="bi bi-building"></i> Sistema de Gestión Parroquial</h3>
       <form action="php/auth.php" method="POST" autocomplete="on">
@@ -73,7 +88,7 @@
         <!-- Contraseña -->
         <div class="mb-4 input-group">
           <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
-          <input type="password" name="contraseña" class="form-control form-control-lg" placeholder="Contraseña" id="password" required autocomplete="current-password">
+          <input type="password" name="contrasena" class="form-control form-control-lg" placeholder="Contraseña" id="password" required autocomplete="current-password">
           <span class="input-group-text toggle-password" onclick="togglePassword()">
             <i class="bi bi-eye-slash" id="icono-password"></i>
           </span>

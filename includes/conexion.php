@@ -1,6 +1,6 @@
 <?php
 $host = 'localhost';
-$db = 'parroquia';
+$db = 'parroquia_db';
 $user = 'root';
 $pass = '';
 $options = [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION];
