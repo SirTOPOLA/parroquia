@@ -1,5 +1,3 @@
-<?php include '../includes/header.php'; ?>
-<?php include '../includes/sidebar.php'; ?>
 
 <?php
 $buscar = $_GET['buscar'] ?? '';
@@ -11,7 +9,7 @@ $stmt->execute();
 $parroquias = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
-<main class="content">
+<main id="content">
     <?php if (isset($_GET['mensaje'])): ?>
         <div class="alert alert-success alert-dismissible fade show" role="alert">
             <?= ucfirst($_GET['mensaje']) ?> correctamente.
@@ -132,5 +130,3 @@ $parroquias = $stmt->fetchAll(PDO::FETCH_ASSOC);
         </div>
     <?php endforeach; ?>
 </main>
-
-<?php include '../includes/footer.php'; ?>

@@ -1,6 +1,3 @@
-<?php include '../includes/header.php'; ?>
-<?php include '../includes/sidebar.php'; ?>
-
 <?php
 $buscar = $_GET['buscar'] ?? '';
 
@@ -21,13 +18,7 @@ $stmt->execute(['buscar' => "%$buscar%"]);
 $feligreses = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
-<main class="content">
-    <?php if (isset($_GET['mensaje'])): ?>
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <?= ucfirst($_GET['mensaje']) ?> correctamente.
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    <?php endif; ?>
+<main id="content">
 
     <div class="container mt-4">
         <h2><i class="bi bi-people-fill me-2"></i>Gestión de Feligreses</h2>
@@ -72,14 +63,16 @@ $feligreses = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 <i class="bi bi-pencil-square"></i> Editar
                             </button>
                             <a href="../php/eliminar_feligres.php?id=<?= $f['id_feligres'] ?>" class="btn btn-sm btn-danger"
-                               onclick="return confirm('¿Eliminar este feligrés?')">
+                                onclick="return confirm('¿Eliminar este feligrés?')">
                                 <i class="bi bi-trash"></i> Eliminar
                             </a>
                         </td>
                     </tr>
                 <?php endforeach ?>
-                <?php if(count($feligreses) === 0): ?>
-                    <tr><td colspan="8" class="text-center">No se encontraron resultados.</td></tr>
+                <?php if (count($feligreses) === 0): ?>
+                    <tr>
+                        <td colspan="8" class="text-center">No se encontraron resultados.</td>
+                    </tr>
                 <?php endif; ?>
             </tbody>
         </table>
@@ -165,7 +158,8 @@ $feligreses = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <div class="modal-body row g-3">
                         <div class="col-12">
                             <label for="id_parroquia<?= $f['id_feligres'] ?>" class="form-label">Parroquia</label>
-                            <select name="id_parroquia" id="id_parroquia<?= $f['id_feligres'] ?>" class="form-select" required>
+                            <select name="id_parroquia" id="id_parroquia<?= $f['id_feligres'] ?>" class="form-select"
+                                required>
                                 <option value="" disabled>Seleccione parroquia</option>
                                 <?php foreach ($parroquias as $p): ?>
                                     <option value="<?= $p['id_parroquia'] ?>" <?= $p['id_parroquia'] == $f['id_parroquia'] ? 'selected' : '' ?>>
@@ -177,17 +171,18 @@ $feligreses = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <div class="col-md-6">
                             <label for="nombre<?= $f['id_feligres'] ?>" class="form-label">Nombre</label>
                             <input type="text" name="nombre" id="nombre<?= $f['id_feligres'] ?>" class="form-control"
-                                   value="<?= htmlspecialchars($f['nombre']) ?>" required>
+                                value="<?= htmlspecialchars($f['nombre']) ?>" required>
                         </div>
                         <div class="col-md-6">
                             <label for="apellido<?= $f['id_feligres'] ?>" class="form-label">Apellido</label>
                             <input type="text" name="apellido" id="apellido<?= $f['id_feligres'] ?>" class="form-control"
-                                   value="<?= htmlspecialchars($f['apellido']) ?>" required>
+                                value="<?= htmlspecialchars($f['apellido']) ?>" required>
                         </div>
                         <div class="col-md-6">
-                            <label for="fecha_nacimiento<?= $f['id_feligres'] ?>" class="form-label">Fecha de Nacimiento</label>
-                            <input type="date" name="fecha_nacimiento" id="fecha_nacimiento<?= $f['id_feligres'] ?>" class="form-control"
-                                   value="<?= $f['fecha_nacimiento'] ?>">
+                            <label for="fecha_nacimiento<?= $f['id_feligres'] ?>" class="form-label">Fecha de
+                                Nacimiento</label>
+                            <input type="date" name="fecha_nacimiento" id="fecha_nacimiento<?= $f['id_feligres'] ?>"
+                                class="form-control" value="<?= $f['fecha_nacimiento'] ?>">
                         </div>
                         <div class="col-md-6">
                             <label for="genero<?= $f['id_feligres'] ?>" class="form-label">Género</label>
@@ -200,21 +195,24 @@ $feligreses = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <div class="col-12">
                             <label for="direccion<?= $f['id_feligres'] ?>" class="form-label">Dirección</label>
                             <input type="text" name="direccion" id="direccion<?= $f['id_feligres'] ?>" class="form-control"
-                                   value="<?= htmlspecialchars($f['direccion']) ?>">
+                                value="<?= htmlspecialchars($f['direccion']) ?>">
                         </div>
                         <div class="col-md-6">
                             <label for="telefono<?= $f['id_feligres'] ?>" class="form-label">Teléfono</label>
                             <input type="text" name="telefono" id="telefono<?= $f['id_feligres'] ?>" class="form-control"
-                                   value="<?= htmlspecialchars($f['telefono']) ?>">
+                                value="<?= htmlspecialchars($f['telefono']) ?>">
                         </div>
                         <div class="col-md-6">
                             <label for="estado_civil<?= $f['id_feligres'] ?>" class="form-label">Estado Civil</label>
                             <select name="estado_civil" id="estado_civil<?= $f['id_feligres'] ?>" class="form-select">
-                                <option value="" <?= $f['estado_civil'] === null ? 'selected' : '' ?>>Seleccione estado civil</option>
-                                <option value="soltero" <?= $f['estado_civil'] === 'soltero' ? 'selected' : '' ?>>Soltero</option>
+                                <option value="" <?= $f['estado_civil'] === null ? 'selected' : '' ?>>Seleccione estado civil
+                                </option>
+                                <option value="soltero" <?= $f['estado_civil'] === 'soltero' ? 'selected' : '' ?>>Soltero
+                                </option>
                                 <option value="casado" <?= $f['estado_civil'] === 'casado' ? 'selected' : '' ?>>Casado</option>
                                 <option value="viudo" <?= $f['estado_civil'] === 'viudo' ? 'selected' : '' ?>>Viudo</option>
-                                <option value="separado" <?= $f['estado_civil'] === 'separado' ? 'selected' : '' ?>>Separado</option>
+                                <option value="separado" <?= $f['estado_civil'] === 'separado' ? 'selected' : '' ?>>Separado
+                                </option>
                             </select>
                         </div>
                         <!-- Por simplicidad no manejamos aquí el JSON de matrimonio -->
@@ -228,5 +226,3 @@ $feligreses = $stmt->fetchAll(PDO::FETCH_ASSOC);
         </div>
     <?php endforeach; ?>
 </main>
-
-<?php include '../includes/footer.php'; ?>

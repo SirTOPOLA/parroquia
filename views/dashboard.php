@@ -1,8 +1,5 @@
-<?php include '../includes/header.php'; ?>
-<?php include '../includes/sidebar.php'; ?> 
-<?php
- 
 
+<?php
  
 try {
   // Totales para el resumen
@@ -26,7 +23,7 @@ try {
 
 <!-- Main Content -->
  
-<main class="content">
+<main id="content">
   <div class="container py-4">
     <h2 class="mb-4"><i class="bi bi-speedometer2 me-2"></i>Resumen del Sistema</h2>
 
@@ -110,6 +107,3 @@ try {
     </div>
   </div>
 </main>
-
- 
-<?php include '../includes/footer.php'; ?>

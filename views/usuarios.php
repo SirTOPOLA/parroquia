@@ -1,6 +1,3 @@
-<?php include '../includes/header.php'; ?>
-<?php include '../includes/sidebar.php'; ?>
-
 <?php
 $buscar = $_GET['buscar'] ?? '';
 
@@ -11,7 +8,7 @@ $stmt->execute(['buscar' => "%$buscar%"]);
 $usuarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
-<main class="content">
+<main id="content">
     <?php if (isset($_GET['mensaje'])): ?>
         <div class="alert alert-success alert-dismissible fade show" role="alert">
             <?= ucfirst($_GET['mensaje']) ?> correctamente.
@@ -79,7 +76,7 @@ $usuarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <!-- Modal Registro -->
     <div class="modal fade" id="modalRegistro" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
-            <form action="../php/guardar_usuario.php" method="POST" class="modal-content">
+            <form action="php/guardar_usuario.php" method="POST" class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title"><i class="bi bi-person-plus me-1"></i>Registrar Usuario</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -124,7 +121,7 @@ $usuarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <?php foreach ($usuarios as $u): ?>
         <div class="modal fade" id="modalEditar<?= $u['id'] ?>" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog">
-                <form action="../php/editar_usuario.php" method="POST" class="modal-content">
+                <form action="php/editar_usuario.php" method="POST" class="modal-content">
                     <input type="hidden" name="id" value="<?= $u['id'] ?>">
                     <div class="modal-header">
                         <h5 class="modal-title"><i class="bi bi-pencil-square me-1"></i>Editar Usuario</h5>
@@ -173,5 +170,3 @@ $usuarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
         </div>
     <?php endforeach; ?>
 </main>
-
-<?php include '../includes/footer.php'; ?>

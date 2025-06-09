@@ -1,23 +1,11 @@
-<?php include '../includes/header.php'; ?>
-<?php include '../includes/sidebar.php'; ?>
-
 <?php
-$buscar = $_GET['buscar'] ?? '';
-
-// Consulta con filtro de búsqueda
-$sql = "SELECT * FROM sacramentos WHERE nombre LIKE :buscar ORDER BY id_sacramento";
-$stmt = $pdo->prepare($sql);
-$stmt->execute(['buscar' => "%$buscar%"]);
-$sacramentos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+ 
+ // estas funciones se llaman desde el models/sacramentos 
+postSacramentos($pdo); 
+$sacramentos = getSacramentos($pdo);
 ?>
 
-<main class="content">
-    <?php if (isset($_GET['mensaje'])): ?>
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <?= htmlspecialchars(ucfirst($_GET['mensaje'])) ?> correctamente.
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    <?php endif; ?>
+<main id="content">    
 
     <div class="container mt-4">
         <h2><i class="bi bi-bookmarks me-2"></i>Gestión de Sacramentos</h2>
@@ -28,9 +16,7 @@ $sacramentos = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     placeholder="Buscar sacramento...">
                 <button class="btn btn-outline-primary" type="submit"><i class="bi bi-search"></i></button>
             </form>
-            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalRegistro">
-                <i class="bi bi-plus-lg me-1"></i>Nuevo Sacramento
-            </button>
+             
         </div>
 
         <table class="table table-bordered table-hover align-middle">
@@ -38,24 +24,15 @@ $sacramentos = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <tr>
                     <th>ID</th>
                     <th>Nombre</th>
-                    <th class="text-center">Acciones</th>
+                   
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($sacramentos as $s): ?>
+                <?php foreach ($sacramentos  as $s): ?>
                     <tr>
                         <td><?= $s['id_sacramento'] ?></td>
                         <td><?= htmlspecialchars($s['nombre']) ?></td>
-                        <td class="text-center">
-                            <button class="btn btn-sm btn-warning" data-bs-toggle="modal"
-                                data-bs-target="#modalEditar<?= $s['id_sacramento'] ?>">
-                                <i class="bi bi-pencil-square"></i> Editar
-                            </button>
-                            <a href="../php/eliminar_sacramento.php?id=<?= $s['id_sacramento'] ?>" class="btn btn-sm btn-danger"
-                               onclick="return confirm('¿Eliminar este sacramento?')">
-                                <i class="bi bi-trash"></i> Eliminar
-                            </a>
-                        </td>
+                         
                     </tr>
                 <?php endforeach ?>
             </tbody>
@@ -106,5 +83,3 @@ $sacramentos = $stmt->fetchAll(PDO::FETCH_ASSOC);
         </div>
     <?php endforeach; ?>
 </main>
-
-<?php include '../includes/footer.php'; ?>

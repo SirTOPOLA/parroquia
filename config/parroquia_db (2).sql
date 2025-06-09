@@ -2,10 +2,10 @@
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Host: 127.0.0.1
--- Generation Time: Jun 07, 2025 at 09:23 AM
--- Server version: 10.4.32-MariaDB
--- PHP Version: 8.2.12
+-- Servidor: 127.0.0.1
+-- Tiempo de generación: 07-06-2025 a las 12:07:16
+-- Versión del servidor: 10.4.32-MariaDB
+-- Versión de PHP: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -18,13 +18,13 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `parroquia_db`
+-- Base de datos: `parroquia_db`
 --
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `catequesis`
+-- Estructura de tabla para la tabla `catequesis`
 --
 
 CREATE TABLE `catequesis` (
@@ -36,7 +36,7 @@ CREATE TABLE `catequesis` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `catequistas`
+-- Estructura de tabla para la tabla `catequistas`
 --
 
 CREATE TABLE `catequistas` (
@@ -50,7 +50,7 @@ CREATE TABLE `catequistas` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `cursos`
+-- Estructura de tabla para la tabla `cursos`
 --
 
 CREATE TABLE `cursos` (
@@ -65,7 +65,7 @@ CREATE TABLE `cursos` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `curso_catequistas`
+-- Estructura de tabla para la tabla `curso_catequistas`
 --
 
 CREATE TABLE `curso_catequistas` (
@@ -76,7 +76,7 @@ CREATE TABLE `curso_catequistas` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `feligreses`
+-- Estructura de tabla para la tabla `feligreses`
 --
 
 CREATE TABLE `feligreses` (
@@ -93,7 +93,7 @@ CREATE TABLE `feligreses` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `feligreses`
+-- Volcado de datos para la tabla `feligreses`
 --
 
 INSERT INTO `feligreses` (`id_feligres`, `id_parroquia`, `nombre`, `apellido`, `fecha_nacimiento`, `genero`, `direccion`, `telefono`, `estado_civil`, `matrimonio`) VALUES
@@ -102,7 +102,7 @@ INSERT INTO `feligreses` (`id_feligres`, `id_parroquia`, `nombre`, `apellido`, `
 -- --------------------------------------------------------
 
 --
--- Table structure for table `feligres_catequesis`
+-- Estructura de tabla para la tabla `feligres_catequesis`
 --
 
 CREATE TABLE `feligres_catequesis` (
@@ -114,7 +114,7 @@ CREATE TABLE `feligres_catequesis` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `feligres_parientes`
+-- Estructura de tabla para la tabla `feligres_parientes`
 --
 
 CREATE TABLE `feligres_parientes` (
@@ -127,7 +127,7 @@ CREATE TABLE `feligres_parientes` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `feligres_sacramento`
+-- Estructura de tabla para la tabla `feligres_sacramento`
 --
 
 CREATE TABLE `feligres_sacramento` (
@@ -141,7 +141,7 @@ CREATE TABLE `feligres_sacramento` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `parientes`
+-- Estructura de tabla para la tabla `parientes`
 --
 
 CREATE TABLE `parientes` (
@@ -154,7 +154,7 @@ CREATE TABLE `parientes` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `parientes`
+-- Volcado de datos para la tabla `parientes`
 --
 
 INSERT INTO `parientes` (`id_pariente`, `nombre`, `apellido`, `telefono`, `tipo_pariente`, `datos_adicionales`) VALUES
@@ -163,7 +163,7 @@ INSERT INTO `parientes` (`id_pariente`, `nombre`, `apellido`, `telefono`, `tipo_
 -- --------------------------------------------------------
 
 --
--- Table structure for table `pariente_catequesis`
+-- Estructura de tabla para la tabla `pariente_catequesis`
 --
 
 CREATE TABLE `pariente_catequesis` (
@@ -175,7 +175,7 @@ CREATE TABLE `pariente_catequesis` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `parroquias`
+-- Estructura de tabla para la tabla `parroquias`
 --
 
 CREATE TABLE `parroquias` (
@@ -186,7 +186,7 @@ CREATE TABLE `parroquias` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `parroquias`
+-- Volcado de datos para la tabla `parroquias`
 --
 
 INSERT INTO `parroquias` (`id_parroquia`, `nombre`, `direccion`, `telefono`) VALUES
@@ -195,7 +195,7 @@ INSERT INTO `parroquias` (`id_parroquia`, `nombre`, `direccion`, `telefono`) VAL
 -- --------------------------------------------------------
 
 --
--- Table structure for table `sacramentos`
+-- Estructura de tabla para la tabla `sacramentos`
 --
 
 CREATE TABLE `sacramentos` (
@@ -204,7 +204,7 @@ CREATE TABLE `sacramentos` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `sacramentos`
+-- Volcado de datos para la tabla `sacramentos`
 --
 
 INSERT INTO `sacramentos` (`id_sacramento`, `nombre`) VALUES
@@ -213,7 +213,7 @@ INSERT INTO `sacramentos` (`id_sacramento`, `nombre`) VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `usuarios`
+-- Estructura de tabla para la tabla `usuarios`
 --
 
 CREATE TABLE `usuarios` (
@@ -228,51 +228,58 @@ CREATE TABLE `usuarios` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Indexes for dumped tables
+-- Volcado de datos para la tabla `usuarios`
+--
+
+INSERT INTO `usuarios` (`id`, `nombre`, `dni`, `usuario`, `contrasena`, `rol`, `estado`, `fecha_registro`) VALUES
+(1, 'Amador Batapa', '0001457896', 'admin', '$2y$10$rOEIJPa2eBlWq.ztzpCzweP5KFoHD5V3wXqGtv1o0p8Jg6EEShzwu', 'admin', 1, '2025-06-07 08:37:10');
+
+--
+-- Índices para tablas volcadas
 --
 
 --
--- Indexes for table `catequesis`
+-- Indices de la tabla `catequesis`
 --
 ALTER TABLE `catequesis`
   ADD PRIMARY KEY (`id_catequesis`);
 
 --
--- Indexes for table `catequistas`
+-- Indices de la tabla `catequistas`
 --
 ALTER TABLE `catequistas`
   ADD PRIMARY KEY (`id_catequista`);
 
 --
--- Indexes for table `cursos`
+-- Indices de la tabla `cursos`
 --
 ALTER TABLE `cursos`
   ADD PRIMARY KEY (`id_curso`),
   ADD KEY `id_catequesis` (`id_catequesis`);
 
 --
--- Indexes for table `curso_catequistas`
+-- Indices de la tabla `curso_catequistas`
 --
 ALTER TABLE `curso_catequistas`
   ADD PRIMARY KEY (`id_curso`,`id_catequista`),
   ADD KEY `id_catequista` (`id_catequista`);
 
 --
--- Indexes for table `feligreses`
+-- Indices de la tabla `feligreses`
 --
 ALTER TABLE `feligreses`
   ADD PRIMARY KEY (`id_feligres`),
   ADD KEY `id_parroquia` (`id_parroquia`);
 
 --
--- Indexes for table `feligres_catequesis`
+-- Indices de la tabla `feligres_catequesis`
 --
 ALTER TABLE `feligres_catequesis`
   ADD PRIMARY KEY (`id_feligres`,`id_catequesis`),
   ADD KEY `id_catequesis` (`id_catequesis`);
 
 --
--- Indexes for table `feligres_parientes`
+-- Indices de la tabla `feligres_parientes`
 --
 ALTER TABLE `feligres_parientes`
   ADD PRIMARY KEY (`id_feligres`,`id_pariente`,`tipo_relacion`),
@@ -280,39 +287,39 @@ ALTER TABLE `feligres_parientes`
   ADD KEY `id_sacramento` (`id_sacramento`);
 
 --
--- Indexes for table `feligres_sacramento`
+-- Indices de la tabla `feligres_sacramento`
 --
 ALTER TABLE `feligres_sacramento`
   ADD PRIMARY KEY (`id_feligres`,`id_sacramento`),
   ADD KEY `id_sacramento` (`id_sacramento`);
 
 --
--- Indexes for table `parientes`
+-- Indices de la tabla `parientes`
 --
 ALTER TABLE `parientes`
   ADD PRIMARY KEY (`id_pariente`);
 
 --
--- Indexes for table `pariente_catequesis`
+-- Indices de la tabla `pariente_catequesis`
 --
 ALTER TABLE `pariente_catequesis`
   ADD PRIMARY KEY (`id_pariente`,`id_catequesis`),
   ADD KEY `id_catequesis` (`id_catequesis`);
 
 --
--- Indexes for table `parroquias`
+-- Indices de la tabla `parroquias`
 --
 ALTER TABLE `parroquias`
   ADD PRIMARY KEY (`id_parroquia`);
 
 --
--- Indexes for table `sacramentos`
+-- Indices de la tabla `sacramentos`
 --
 ALTER TABLE `sacramentos`
   ADD PRIMARY KEY (`id_sacramento`);
 
 --
--- Indexes for table `usuarios`
+-- Indices de la tabla `usuarios`
 --
 ALTER TABLE `usuarios`
   ADD PRIMARY KEY (`id`),
@@ -320,89 +327,89 @@ ALTER TABLE `usuarios`
   ADD UNIQUE KEY `usuario` (`usuario`);
 
 --
--- AUTO_INCREMENT for dumped tables
+-- AUTO_INCREMENT de las tablas volcadas
 --
 
 --
--- AUTO_INCREMENT for table `catequesis`
+-- AUTO_INCREMENT de la tabla `catequesis`
 --
 ALTER TABLE `catequesis`
   MODIFY `id_catequesis` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT for table `catequistas`
+-- AUTO_INCREMENT de la tabla `catequistas`
 --
 ALTER TABLE `catequistas`
   MODIFY `id_catequista` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT for table `cursos`
+-- AUTO_INCREMENT de la tabla `cursos`
 --
 ALTER TABLE `cursos`
   MODIFY `id_curso` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT for table `feligreses`
+-- AUTO_INCREMENT de la tabla `feligreses`
 --
 ALTER TABLE `feligreses`
   MODIFY `id_feligres` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
--- AUTO_INCREMENT for table `parientes`
+-- AUTO_INCREMENT de la tabla `parientes`
 --
 ALTER TABLE `parientes`
   MODIFY `id_pariente` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
--- AUTO_INCREMENT for table `parroquias`
+-- AUTO_INCREMENT de la tabla `parroquias`
 --
 ALTER TABLE `parroquias`
   MODIFY `id_parroquia` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
--- AUTO_INCREMENT for table `sacramentos`
+-- AUTO_INCREMENT de la tabla `sacramentos`
 --
 ALTER TABLE `sacramentos`
   MODIFY `id_sacramento` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
--- AUTO_INCREMENT for table `usuarios`
+-- AUTO_INCREMENT de la tabla `usuarios`
 --
 ALTER TABLE `usuarios`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
--- Constraints for dumped tables
+-- Restricciones para tablas volcadas
 --
 
 --
--- Constraints for table `cursos`
+-- Filtros para la tabla `cursos`
 --
 ALTER TABLE `cursos`
   ADD CONSTRAINT `cursos_ibfk_1` FOREIGN KEY (`id_catequesis`) REFERENCES `catequesis` (`id_catequesis`);
 
 --
--- Constraints for table `curso_catequistas`
+-- Filtros para la tabla `curso_catequistas`
 --
 ALTER TABLE `curso_catequistas`
   ADD CONSTRAINT `curso_catequistas_ibfk_1` FOREIGN KEY (`id_curso`) REFERENCES `cursos` (`id_curso`),
   ADD CONSTRAINT `curso_catequistas_ibfk_2` FOREIGN KEY (`id_catequista`) REFERENCES `catequistas` (`id_catequista`);
 
 --
--- Constraints for table `feligreses`
+-- Filtros para la tabla `feligreses`
 --
 ALTER TABLE `feligreses`
   ADD CONSTRAINT `feligreses_ibfk_1` FOREIGN KEY (`id_parroquia`) REFERENCES `parroquias` (`id_parroquia`);
 
 --
--- Constraints for table `feligres_catequesis`
+-- Filtros para la tabla `feligres_catequesis`
 --
 ALTER TABLE `feligres_catequesis`
   ADD CONSTRAINT `feligres_catequesis_ibfk_1` FOREIGN KEY (`id_feligres`) REFERENCES `feligreses` (`id_feligres`),
   ADD CONSTRAINT `feligres_catequesis_ibfk_2` FOREIGN KEY (`id_catequesis`) REFERENCES `catequesis` (`id_catequesis`);
 
 --
--- Constraints for table `feligres_parientes`
+-- Filtros para la tabla `feligres_parientes`
 --
 ALTER TABLE `feligres_parientes`
   ADD CONSTRAINT `feligres_parientes_ibfk_1` FOREIGN KEY (`id_feligres`) REFERENCES `feligreses` (`id_feligres`),
@@ -410,14 +417,14 @@ ALTER TABLE `feligres_parientes`
   ADD CONSTRAINT `feligres_parientes_ibfk_3` FOREIGN KEY (`id_sacramento`) REFERENCES `sacramentos` (`id_sacramento`);
 
 --
--- Constraints for table `feligres_sacramento`
+-- Filtros para la tabla `feligres_sacramento`
 --
 ALTER TABLE `feligres_sacramento`
   ADD CONSTRAINT `feligres_sacramento_ibfk_1` FOREIGN KEY (`id_feligres`) REFERENCES `feligreses` (`id_feligres`),
   ADD CONSTRAINT `feligres_sacramento_ibfk_2` FOREIGN KEY (`id_sacramento`) REFERENCES `sacramentos` (`id_sacramento`);
 
 --
--- Constraints for table `pariente_catequesis`
+-- Filtros para la tabla `pariente_catequesis`
 --
 ALTER TABLE `pariente_catequesis`
   ADD CONSTRAINT `pariente_catequesis_ibfk_1` FOREIGN KEY (`id_pariente`) REFERENCES `parientes` (`id_pariente`),
