@@ -1,6 +1,6 @@
 <?php
 $buscar = $_GET['buscar'] ?? '';
-
+ 
 // Consulta de parroquias
 $parroquias = $pdo->query("SELECT * FROM parroquias")->fetchAll(PDO::FETCH_ASSOC);
 
@@ -18,7 +18,7 @@ $feligreses = $stmt->fetchAll(PDO::FETCH_ASSOC);
 $parroquias = $pdo->query("SELECT * FROM parroquias")->fetchAll(PDO::FETCH_ASSOC);
 
 // Consulta de sacramentos
-$sacramentos = $pdo->query("SELECT * FROM sacramentos")->fetchAll(PDO::FETCH_ASSOC);
+$sacramentos = getSacramentos($pdo);
 
 ?>
 

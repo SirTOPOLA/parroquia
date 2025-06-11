@@ -8,8 +8,7 @@ require_once 'helpers/permisos.php';
 require_once 'helpers/auth.php'; 
 require_once 'components/alerta.php'; 
 require_once 'models/sacramentos.php';  
- 
-
+ postSacramentos($pdo);
 
 $publicas = ['login'];  // vistas públicas
 
