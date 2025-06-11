@@ -1,6 +1,6 @@
 <?php
 $buscar = $_GET['buscar'] ?? '';
-
+ 
 // Consulta de parroquias
 $parroquias = $pdo->query("SELECT * FROM parroquias")->fetchAll(PDO::FETCH_ASSOC);
 
@@ -251,154 +251,161 @@ $sacramentos = getSacramentos($pdo);
     </div>
 </div>
 
+<!-- JavaScript del Modal -->
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-    const parroquia = document.getElementById('parroquia');
-    const datosFeligres = document.getElementById('datosFeligres');
-    const sacramento = document.getElementById('sacramento');
-    const camposAdicionales = document.getElementById('camposAdicionales');
-    const seccionPadres = document.getElementById('seccionPadres');
-    const seccionPadrinos = document.getElementById('seccionPadrinos');
-    const madrinaCampos = document.getElementById('madrinaCampos');
-    const seccionMatrimonio = document.getElementById('seccionMatrimonio');
+    document.addEventListener('DOMContentLoaded', () => {
+        const parroquia = document.getElementById('parroquia');
+        const datosFeligres = document.getElementById('datosFeligres');
+        const sacramento = document.getElementById('sacramento');
+        const camposAdicionales = document.getElementById('camposAdicionales');
+        const seccionPadres = document.getElementById('seccionPadres');
+        const seccionPadrinos = document.getElementById('seccionPadrinos');
+        const madrinaCampos = document.getElementById('madrinaCampos');
+        const seccionMatrimonio = document.getElementById('seccionMatrimonio');
 
-    // Mostrar sección de datos del feligrés cuando se selecciona una parroquia
-    parroquia.addEventListener('change', () => {
-        if (parroquia.value !== "") {
-            datosFeligres.classList.remove('d-none');
-        } else {
-            datosFeligres.classList.add('d-none');
-            camposAdicionales.classList.add('d-none');
-        }
-    });
-
-    // Mostrar campos adicionales según sacramento
-    sacramento.addEventListener("change", (e) => {
-        const selectedOption = e.target.options[e.target.selectedIndex];
-        const sacramentoNombre = selectedOption.getAttribute("data-sacramento");
-
-        camposAdicionales.classList.remove("d-none");
-
-        // Ocultar todas las secciones
-        seccionPadres.classList.add("d-none");
-        seccionPadrinos.classList.add("d-none");
-        madrinaCampos.classList.add("d-none");
-        seccionMatrimonio.classList.add("d-none");
-
-        if (!sacramentoNombre) return;
-
-        const nombreNormalizado = sacramentoNombre.trim().toLowerCase();
-
-        if (["bautismo", "confirmacion", "comunion"].includes(nombreNormalizado)) {
-            seccionPadres.classList.remove("d-none");
-            seccionPadrinos.classList.remove("d-none");
-
-            if (nombreNormalizado === "bautismo") {
-                madrinaCampos.classList.remove("d-none");
+        parroquia.addEventListener('change', () => {
+            if (parroquia.value !== "") {
+                datosFeligres.classList.remove('d-none');
+            } else {
+                datosFeligres.classList.add('d-none');
+                camposAdicionales.classList.add('d-none');
             }
-        }
+        });
 
-        if (nombreNormalizado === "matrimonio") {
-            seccionMatrimonio.classList.remove("d-none");
-        }
-    });
+        sacramento.addEventListener('change', () => {
+            camposAdicionales.classList.remove('d-none');
 
-    // Manejar el envío del formulario
-    document.getElementById('formRegistroFeligres').addEventListener('submit', (e) => {
-        e.preventDefault();
+            // Reset secciones
+            seccionPadres.classList.add('d-none');
+            seccionPadrinos.classList.add('d-none');
+            madrinaCampos.classList.add('d-none');
+            seccionMatrimonio.classList.add('d-none');
+            const seleccionado = this.options[this.selectedIndex];
+            const tipo = seleccionado.dataset.nombre;
+             
 
-        const formData = new FormData();
-        const sacramentoSeleccionado = sacramento.value;
+            if (['bautismo', 'comunion', 'confirmacion'].includes(tipo)) {
+                seccionPadres.classList.remove('d-none');
+                seccionPadrinos.classList.remove('d-none');
+            }
 
-        formData.append('id_parroquia', parroquia.value);
-        formData.append('nombre', document.getElementById('nombre').value);
-        formData.append('apellido', document.getElementById('apellido').value);
-        formData.append('fecha_nacimiento', document.getElementById('fechaNacimiento').value);
-        formData.append('genero', document.getElementById('genero').value);
-        formData.append('direccion', document.getElementById('direccion').value);
-        formData.append('estado_civil', document.getElementById('estadoCivil')?.value || 'soltero');
+            if (tipo === 'bautismo') {
+                madrinaCampos.classList.remove('d-none');
+            }
 
-        if (sacramentoSeleccionado === 'matrimonio') {
-            const matrimonio = {
-                telefono: document.getElementById('telefonoMatrimonio').value,
-                padrino: {
-                    nombre: document.getElementById('nombrePadrinoMat').value,
-                    apellido: document.getElementById('apellidoPadrinoMat').value,
-                    telefono: document.getElementById('telefonoPadrinoMat').value
-                },
-                testigo: {
+            if (tipo === 'matrimonio') {
+                seccionMatrimonio.classList.remove('d-none');
+            }
+        });
+
+        // Manejar el envío del formulario
+        document.getElementById('formRegistroFeligres').addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const formData = new FormData();
+            const sacramentoSeleccionado = sacramento.value;
+
+            // Datos básicos
+            formData.append('id_parroquia', parroquia.value);
+            formData.append('nombre', document.getElementById('nombre').value);
+            formData.append('apellido', document.getElementById('apellido').value);
+            formData.append('fecha_nacimiento', document.getElementById('fechaNacimiento').value);
+            formData.append('genero', document.getElementById('genero').value);
+            formData.append('direccion', document.getElementById('direccion').value);
+
+            // Estado civil (solo si es matrimonio)
+            formData.append('estado_civil', document.getElementById('estadoCivil')?.value || 'soltero');
+
+            // Matrimonio
+            if (sacramentoSeleccionado === 'matrimonio') {
+                const matrimonio = {
+                    telefono: document.getElementById('telefonoMatrimonio').value,
+                    padrino: {
+                        nombre: document.getElementById('nombrePadrinoMat').value,
+                        apellido: document.getElementById('apellidoPadrinoMat').value,
+                        telefono: document.getElementById('telefonoPadrinoMat').value
+                    },
+                    testigo: {
+                        nombre: document.getElementById('nombreTestigo').value,
+                        apellido: document.getElementById('apellidoTestigo').value,
+                        telefono: document.getElementById('telefonoTestigo').value
+                    }
+                };
+                formData.append('matrimonio', JSON.stringify(matrimonio));
+            }
+
+            // Parientes (padres, padrinos, madrina, testigo)
+            const parientes = [];
+
+            // Padres
+            if (!seccionPadres.classList.contains('d-none')) {
+                parientes.push({
+                    tipo: 'padre',
+                    nombre: document.getElementById('nombrePadre').value,
+                    apellido: document.getElementById('apellidoPadre').value,
+                    telefono: document.getElementById('telefonoPadre').value
+                });
+            }
+
+            // Padrinos
+            if (!seccionPadrinos.classList.contains('d-none')) {
+                parientes.push({
+                    tipo: 'padrino',
+                    nombre: document.getElementById('nombrePadrino').value,
+                    apellido: document.getElementById('apellidoPadrino').value,
+                    telefono: document.getElementById('telefonoPadrino').value
+                });
+
+                // Madrina (solo bautismo)
+                if (!madrinaCampos.classList.contains('d-none')) {
+                    parientes.push({
+                        tipo: 'madrina',
+                        nombre: document.getElementById('nombreMadrina').value,
+                        apellido: document.getElementById('apellidoMadrina').value,
+                        telefono: document.getElementById('telefonoMadrina').value
+                    });
+                }
+            }
+
+            // Testigo (solo matrimonio)
+            if (!seccionMatrimonio.classList.contains('d-none')) {
+                parientes.push({
+                    tipo: 'testigo',
                     nombre: document.getElementById('nombreTestigo').value,
                     apellido: document.getElementById('apellidoTestigo').value,
                     telefono: document.getElementById('telefonoTestigo').value
-                }
-            };
-            formData.append('matrimonio', JSON.stringify(matrimonio));
-        }
-
-        const parientes = [];
-
-        if (!seccionPadres.classList.contains('d-none')) {
-            parientes.push({
-                tipo: 'padre',
-                nombre: document.getElementById('nombrePadre').value,
-                apellido: document.getElementById('apellidoPadre').value,
-                telefono: document.getElementById('telefonoPadre').value
-            });
-        }
-
-        if (!seccionPadrinos.classList.contains('d-none')) {
-            parientes.push({
-                tipo: 'padrino',
-                nombre: document.getElementById('nombrePadrino').value,
-                apellido: document.getElementById('apellidoPadrino').value,
-                telefono: document.getElementById('telefonoPadrino').value
-            });
-
-            if (!madrinaCampos.classList.contains('d-none')) {
-                parientes.push({
-                    tipo: 'madrina',
-                    nombre: document.getElementById('nombreMadrina').value,
-                    apellido: document.getElementById('apellidoMadrina').value,
-                    telefono: document.getElementById('telefonoMadrina').value
                 });
             }
-        }
 
-        if (!seccionMatrimonio.classList.contains('d-none')) {
-            parientes.push({
-                tipo: 'testigo',
-                nombre: document.getElementById('nombreTestigo').value,
-                apellido: document.getElementById('apellidoTestigo').value,
-                telefono: document.getElementById('telefonoTestigo').value
-            });
-        }
+            formData.append('parientes', JSON.stringify(parientes));
 
-        formData.append('parientes', JSON.stringify(parientes));
+            // Sacramento
+            formData.append('sacramentos', JSON.stringify([
+                { tipo: sacramentoSeleccionado }
+            ]));
 
-        formData.append('sacramentos', JSON.stringify([
-            { tipo: sacramentoSeleccionado }
-        ]));
-
-        fetch('php/guardar_feligres.php', {
-            method: 'POST',
-            body: formData
-        })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    alert("Feligrés registrado exitosamente.");
-                    document.getElementById('formRegistroFeligres').reset();
-                    datosFeligres.classList.add('d-none');
-                    camposAdicionales.classList.add('d-none');
-                    bootstrap.Modal.getInstance(document.getElementById('modalRegistro')).hide();
-                } else {
-                    alert("Error: " + data.message);
-                }
+            // Enviar
+            fetch('php/guardar_feligres.php', {
+                method: 'POST',
+                body: formData
             })
-            .catch(err => {
-                console.error("Error en la solicitud:", err);
-                alert("Error de conexión. Intenta de nuevo.");
-            });
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        alert("Feligrés registrado exitosamente.");
+                        document.getElementById('formRegistroFeligres').reset();
+                        datosFeligres.classList.add('d-none');
+                        camposAdicionales.classList.add('d-none');
+                        bootstrap.Modal.getInstance(document.getElementById('modalRegistro')).hide();
+                    } else {
+                        alert("Error: " + data.message);
+                    }
+                })
+                .catch(err => {
+                    console.error("Error en la solicitud:", err);
+                    alert("Error de conexión. Intenta de nuevo.");
+                });
+        });
     });
-});
+
 </script>
