@@ -20,7 +20,7 @@ try {
     $matrimonioJson = $_POST['matrimonio'] ?? null;
 
     // Insertar feligrés
-    $stmt = $conn->prepare("INSERT INTO feligreses (id_parroquia, nombre, apellido, fecha_nacimiento, genero, direccion, telefono, estado_civil, matrimonio) 
+    $stmt = $pdo->prepare("INSERT INTO feligreses (id_parroquia, nombre, apellido, fecha_nacimiento, genero, direccion, telefono, estado_civil, matrimonio) 
                             VALUES (:id_parroquia, :nombre, :apellido, :fecha_nacimiento, :genero, :direccion, :telefono, :estado_civil, :matrimonio)");
 
     $stmt->bindValue(':id_parroquia', $id_parroquia, PDO::PARAM_INT);
@@ -34,7 +34,7 @@ try {
     $stmt->bindValue(':matrimonio', $matrimonioJson);
 
     $stmt->execute();
-    $id_feligres = $conn->lastInsertId();
+    $id_feligres = $pdo->lastInsertId();
 
     // Registrar sacramentos
     $sacramentos = json_decode($_POST['sacramentos'], true);
@@ -42,14 +42,14 @@ try {
         $tipoSacramento = $sac['tipo'];
 
         // Buscar id del sacramento
-        $sacramentoStmt = $conn->prepare("SELECT id_sacramento FROM sacramentos WHERE LOWER(nombre) = LOWER(:nombre) LIMIT 1");
+        $sacramentoStmt = $pdo->prepare("SELECT id_sacramento FROM sacramentos WHERE LOWER(nombre) = LOWER(:nombre) LIMIT 1");
         $sacramentoStmt->bindValue(':nombre', $tipoSacramento);
         $sacramentoStmt->execute();
         $sacramentoRow = $sacramentoStmt->fetch(PDO::FETCH_ASSOC);
 
         if ($sacramentoRow) {
             $id_sacramento = $sacramentoRow['id_sacramento'];
-            $insertSac = $conn->prepare("INSERT INTO feligres_sacramento (id_feligres, id_sacramento) VALUES (:id_feligres, :id_sacramento)");
+            $insertSac = $pdo->prepare("INSERT INTO feligres_sacramento (id_feligres, id_sacramento) VALUES (:id_feligres, :id_sacramento)");
             $insertSac->bindValue(':id_feligres', $id_feligres, PDO::PARAM_INT);
             $insertSac->bindValue(':id_sacramento', $id_sacramento, PDO::PARAM_INT);
             $insertSac->execute();
@@ -65,17 +65,17 @@ try {
             $telefonoP = $pariente['telefono'] ?? null;
             $tipo = $pariente['tipo'];
 
-            $insertPar = $conn->prepare("INSERT INTO parientes (nombre, apellido, telefono, tipo_pariente) VALUES (:nombre, :apellido, :telefono, :tipo)");
+            $insertPar = $pdo->prepare("INSERT INTO parientes (nombre, apellido, telefono, tipo_pariente) VALUES (:nombre, :apellido, :telefono, :tipo)");
             $insertPar->bindValue(':nombre', $nombreP);
             $insertPar->bindValue(':apellido', $apellidoP);
             $insertPar->bindValue(':telefono', $telefonoP);
             $insertPar->bindValue(':tipo', $tipo);
             $insertPar->execute();
 
-            $id_pariente = $conn->lastInsertId();
+            $id_pariente = $pdo->lastInsertId();
 
             // Relación feligrés-pariente
-            $insertRel = $conn->prepare("INSERT INTO feligres_parientes (id_feligres, id_pariente, tipo_relacion) VALUES (:id_feligres, :id_pariente, :tipo_relacion)");
+            $insertRel = $pdo->prepare("INSERT INTO feligres_parientes (id_feligres, id_pariente, tipo_relacion) VALUES (:id_feligres, :id_pariente, :tipo_relacion)");
             $insertRel->bindValue(':id_feligres', $id_feligres, PDO::PARAM_INT);
             $insertRel->bindValue(':id_pariente', $id_pariente, PDO::PARAM_INT);
             $insertRel->bindValue(':tipo_relacion', $tipo);
