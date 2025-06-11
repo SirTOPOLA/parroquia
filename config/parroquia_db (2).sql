@@ -120,7 +120,7 @@ CREATE TABLE `feligres_catequesis` (
 CREATE TABLE `feligres_parientes` (
   `id_feligres` int(11) NOT NULL,
   `id_pariente` int(11) NOT NULL,
-  `tipo_relacion` enum('padre','madre','padrino_bautismo','padrino_confirmacion','otro') NOT NULL,
+  `tipo_relacion` enum('padre','madre','padrino','padrino','testigo') NOT NULL,
   `id_sacramento` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -149,7 +149,7 @@ CREATE TABLE `parientes` (
   `nombre` varchar(100) NOT NULL,
   `apellido` varchar(100) DEFAULT NULL,
   `telefono` varchar(20) DEFAULT NULL,
-  `tipo_pariente` enum('padre','madre','padrino','madrina','otro') DEFAULT NULL,
+  `tipo_pariente` enum('padre','madre','padrino','madrina','testigo') DEFAULT NULL,
   `datos_adicionales` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`datos_adicionales`))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 

@@ -27,7 +27,7 @@
         document.getElementById('cerrarSession').addEventListener('click', () => {
             if (confirm('¿Estás seguro de que deseas cerrar la sesión?')) {
                 window.location.href = 'logout.php';  
-                location.reload()
+                //location.reload()
             }
         });
     }
