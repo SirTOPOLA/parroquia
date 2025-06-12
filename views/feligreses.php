@@ -77,7 +77,14 @@ $sacramentos = getSacramentos($pdo);
                                     data-bs-target="#modalAsignarCatequesis">
                                     <i class="bi bi-bookmark-plus"></i> Asignar
                                 </button>
-
+                                <!-- Botones en la columna Acciones -->
+                                <a href="#" class="btn btn-success btn-sm"
+                                    onclick="abrirModalAsignar(<?= $f['id_feligres'] ?>)">
+                                    <i class="bi bi-plus-circle"></i> Asignar Sacramento
+                                </a>
+                                <a href="#" class="btn btn-primary btn-sm" onclick="abrirModalVer(<?= $f['id_feligres'] ?>)">
+                                    <i class="bi bi-book"></i> Ver Sacramentos
+                                </a>
 
                                 <a href="../php/eliminar_feligres.php?id=<?= $f['id_feligres'] ?>" class="btn btn-sm btn-danger"
                                     onclick="return confirm('¿Eliminar este feligrés?')">
@@ -308,7 +315,108 @@ $sacramentos = getSacramentos($pdo);
 </div>
 
 
+<!-- Modal Asignar Sacramento -->
+<div class="modal fade" id="modalAsignarSacramento" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <form id="formAsignarSacramento">
+      <div class="modal-content">
+        <div class="modal-header bg-success text-white">
+          <h5 class="modal-title">Asignar Sacramento</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" name="id_feligres" id="sacramento_id_feligres">
+          <div class="mb-3">
+            <label for="id_sacramento" class="form-label">Sacramento</label>
+            <select class="form-select" name="id_sacramento" id="id_sacramento" required>
+              <!-- Opciones se cargan dinámicamente -->
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="fecha" class="form-label">Fecha</label>
+            <input type="date" class="form-control" name="fecha" required>
+          </div>
+          <div class="mb-3">
+            <label for="lugar" class="form-label">Lugar</label>
+            <input type="text" class="form-control" name="lugar" required>
+          </div>
+          <div class="mb-3">
+            <label for="observaciones" class="form-label">Observaciones</label>
+            <textarea class="form-control" name="observaciones" rows="2"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button class="btn btn-success" type="submit">Guardar</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal Ver Sacramentos -->
+<div class="modal fade" id="modalVerSacramentos" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title">Sacramentos del Feligrés</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div id="listaSacramentos"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
 <script>
+function abrirModalAsignar(idFeligres) {
+  document.getElementById('sacramento_id_feligres').value = idFeligres;
+
+  // Cargar opciones de sacramentos
+  fetch('php/obtener_sacramento.php')
+    .then(res => res.json())
+    .then(data => {
+      const select = document.getElementById('id_sacramento');
+      select.innerHTML = '<option value="">Seleccione</option>';
+      data.forEach(s => {
+        select.innerHTML += `<option value="${s.id_sacramento}">${s.nombre}</option>`;
+      });
+    });
+
+  new bootstrap.Modal(document.getElementById('modalAsignarSacramento')).show();
+}
+
+document.getElementById('formAsignarSacramento').addEventListener('submit', e => {
+  e.preventDefault();
+  const formData = new FormData(e.target);
+
+  fetch('php/asignar_sacramento.php', {
+    method: 'POST',
+    body: formData
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      alert('Sacramento asignado correctamente');
+      bootstrap.Modal.getInstance(document.getElementById('modalAsignarSacramento')).hide();
+    } else {
+      alert('Error: ' + data.message);
+    }
+  });
+});
+
+function abrirModalVer(idFeligres) {
+  fetch('php/ver_sacramentos.php?id=' + idFeligres)
+    .then(res => res.text())
+    .then(html => {
+      document.getElementById('listaSacramentos').innerHTML = html;
+      new bootstrap.Modal(document.getElementById('modalVerSacramentos')).show();
+    });
+}
+ 
 
     function asignarCatequesis() {
 

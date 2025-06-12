@@ -43,19 +43,7 @@ function contarParientesCurso($pdo, $id_curso)
     return $stmt->fetchColumn();
 }
 
-// Obtener cursos asociados a esta catequesis
-$stmtCursos = $pdo->prepare("SELECT * FROM cursos WHERE id_catequesis = ?");
-$stmtCursos->execute([$c['id_catequesis']]);
-$cursos = $stmtCursos->fetchAll(PDO::FETCH_ASSOC);
 
-// Contar feligreses y parientes totales de esta catequesis sumando cursos
-$totalFeligreses = 0;
-$totalParientes = 0;
-foreach ($cursos as $curso) {
-    // contar feligreses y parientes para cada curso
-    $totalFeligreses += contarFeligresesCurso($pdo, $curso['id_curso']);
-    $totalParientes += contarParientesCurso($pdo, $curso['id_curso']);
-}
 
 ?>
 
@@ -89,6 +77,22 @@ foreach ($cursos as $curso) {
             </thead>
             <tbody>
                 <?php foreach ($catequesis as $c): ?>
+                    <?php
+                    // Obtener cursos asociados a esta catequesis
+                    $stmtCursos = $pdo->prepare("SELECT * FROM cursos WHERE id_catequesis = ?");
+                    $stmtCursos->execute([$c['id_catequesis']]);
+                    $cursos = $stmtCursos->fetchAll(PDO::FETCH_ASSOC);
+
+
+                    // Contar feligreses y parientes totales de esta catequesis sumando cursos
+                    $totalFeligreses = 0;
+                    $totalParientes = 0;
+                    foreach ($cursos as $curso) {
+                        // contar feligreses y parientes para cada curso
+                        $totalFeligreses += contarFeligresesCurso($pdo, $curso['id_curso']);
+                        $totalParientes += contarParientesCurso($pdo, $curso['id_curso']);
+                    }
+                    ?>
 
                     <tr>
                         <td><?= $c['id_catequesis'] ?></td>
@@ -252,7 +256,7 @@ foreach ($cursos as $curso) {
         }
 
         try {
-            const response = await fetch('guardar_catequesis.php', {
+            const response = await fetch('php/guardar_catequesis.php', {
                 method: 'POST',
                 body: formData
             });
@@ -266,6 +270,7 @@ foreach ($cursos as $curso) {
                 document.getElementById('campoCatequista').classList.add('d-none');
                 const modal = bootstrap.Modal.getInstance(document.getElementById('modalNuevaCatequesis'));
                 modal.hide();
+                location.reload();
                 // Puedes recargar tabla o actualizar vista si usas DataTable, etc.
             } else {
                 alert(data.error || "Ocurrió un error al registrar la catequesis.");
@@ -279,7 +284,7 @@ foreach ($cursos as $curso) {
 
 
     function mostrarDetalleCatequesis(id) {
-        fetch('api/modalCatequesis.php?id=' + id)
+        fetch('php/modalCatequesis.php?id=' + id)
             .then(res => res.text())
             .then(html => {
                 const modalContainer = document.createElement('div');

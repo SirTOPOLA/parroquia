@@ -25,9 +25,9 @@ try {
     $telefono = $_POST['telefono'] ?? null;
     $estado_civil = $_POST['estado_civil'] ?? null;
     $matrimonio = $_POST['matrimonio'] ?? null;
-$id_sacramento = isset($_POST['sacramento']) ? intval($_POST['sacramento']) : null;
+$id_sacramento = isset($_POST['id_sacramento']) ? intval($_POST['id_sacramento']) : null;
     // Validaciones obligatorias
-    if (!$id_parroquia || !$nombre || !$apellido || !$fecha_nacimiento || !$genero) {
+    if (!$id_sacramento || !$id_parroquia || !$nombre || !$apellido || !$fecha_nacimiento || !$genero) {
         throw new Exception("Debe completar los campos obligatorios.");
     }
 
