@@ -27,6 +27,7 @@ function verificarAcceso($vista)
             'usuarios', 
             'parientes', 
             'catequistas',  
+            'catequesis',  
             'parroquias',  
             'feligreses', 
             'sacramentos', 

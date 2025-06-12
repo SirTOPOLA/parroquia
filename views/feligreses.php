@@ -66,10 +66,16 @@ $sacramentos = getSacramentos($pdo);
                             <td><?= htmlspecialchars($f['telefono']) ?></td>
                             <td><?= ucfirst($f['estado_civil']) ?></td>
                             <td class="text-center">
-                                <button class="btn btn-sm btn-warning" data-bs-toggle="modal"
+                                <!--  <button class="btn btn-sm btn-warning" data-bs-toggle="modal"
                                     onclick='abrirModalFeligres(<?= json_encode($f, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>)'
                                     data-bs-target="#modalRegistro">
                                     <i class="bi bi-pencil-square"></i>
+                                </button>
+ -->
+                                <button class="btn btn-sm btn-primary"
+                                    onclick="abrirModalAsignarCatequesis(<?= $f['id_feligres'] ?>)" data-bs-toggle="modal"
+                                    data-bs-target="#modalAsignarCatequesis">
+                                    <i class="bi bi-bookmark-plus"></i> Asignar
                                 </button>
 
 
@@ -257,41 +263,156 @@ $sacramentos = getSacramentos($pdo);
 
 
 
+<!--  Asignacion de catequesis -->
+<div class="modal fade" id="modalAsignarCatequesis" tabindex="-1" aria-labelledby="modalAsignarCatequesisLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <form id="formAsignarCatequesis">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalAsignarCatequesisLabel">Asignar Catequesis y Curso</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="idFeligresAsignar" name="id_feligres" />
+
+                    <div class="mb-3">
+                        <label for="selectCatequesis" class="form-label">Catequesis</label>
+                        <select id="selectCatequesis" name="id_catequesis" class="form-select" required>
+                            <option value="">Seleccione una catequesis</option>
+                            <!-- Opciones dinámicas -->
+                        </select>
+                    </div>
+
+                    <div class="mb-3 d-none" id="divCursos">
+                        <label for="selectCurso" class="form-label">Curso</label>
+                        <select id="selectCurso" name="id_curso" class="form-select">
+                            <option value="">Seleccione un curso</option>
+                            <!-- Opciones dinámicas -->
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="fechaInscripcion" class="form-label">Fecha de Inscripción</label>
+                        <input type="date" id="fechaInscripcion" name="fecha_inscripcion" class="form-control" required>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Guardar asignación</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+
 <script>
-/*    function abrirModalFeligres( feligres) {
-    const modal = new bootstrap.Modal(document.getElementById('modalRegistro'));
-    const form = document.getElementById('formRegistroFeligres');
-    const titulo = document.getElementById('modalRegistroFeligresLabel');
-    const botonSubmit = form.querySelector('button[type="submit"]');
 
-    // Reseteamos formulario y clases ocultas
-    form.reset();
-    document.getElementById('datosFeligres').classList.add('d-none');
-    document.getElementById('camposAdicionales').classList.add('d-none');
-    // ... si tienes otras secciones que ocultar, aquí va
+    function asignarCatequesis() {
 
-   
-        titulo.textContent = 'Editar Feligres';
-        botonSubmit.textContent = 'Guardar cambios';
+        const modalAsignar = new bootstrap.Modal(document.getElementById('modalAsignarCatequesis'));
+        const formAsignar = document.getElementById('formAsignarCatequesis');
+        const selectCatequesis = document.getElementById('selectCatequesis');
+        const selectCurso = document.getElementById('selectCurso');
+        const divCursos = document.getElementById('divCursos');
+        const idFeligresInput = document.getElementById('idFeligresAsignar');
+        const fechaInscripcion = document.getElementById('fechaInscripcion');
 
-        // Mostrar datos y rellenar campos
-        document.getElementById('datosFeligres').classList.remove('d-none');
-        // Aquí rellenas los inputs con los datos de feligres
-        document.getElementById('nombre').value = feligres.nombre ?? '';
-        document.getElementById('apellido').value = feligres.apellido ?? '';
-        // ... resto de campos
-        document.getElementById('parroquia').value = feligres.id_parroquia ?? '';
-        document.getElementById('sacramento').value = feligres.id_sacramento ?? '';
-        // etc.
+        // Función para abrir modal y pasar ID del feligrés
+        window.abrirModalAsignarCatequesis = function (feligresId) {
+            idFeligresInput.value = feligresId;
+            selectCatequesis.value = "";
+            selectCurso.innerHTML = '<option value="">Seleccione un curso</option>';
+            divCursos.classList.add('d-none');
+            fechaInscripcion.value = new Date().toISOString().split('T')[0]; // fecha hoy por defecto
+            modalAsignar.show();
+        };
 
-  
-    modal.show();
-}
- */
+        // Cargar catequesis (podría venir por fetch desde PHP)
+        async function cargarCatequesis() {
+            try {
+                const res = await fetch('php/obtener_catequesis.php');
+                const data = await res.json();
+                if (data.status) {
+                    selectCatequesis.innerHTML = '<option value="">Seleccione una catequesis</option>';
+                    data.catequesis.forEach(c => {
+                        const option = document.createElement('option');
+                        option.value = c.id_catequesis;
+                        option.textContent = c.nombre;
+                        selectCatequesis.appendChild(option);
+                    });
+                }
+            } catch (err) {
+                console.error('Error al cargar catequesis', err);
+            }
+        }
 
+        // Al cambiar catequesis, cargar cursos relacionados
+        selectCatequesis.addEventListener('change', async () => {
+            const idCatequesis = selectCatequesis.value;
+            if (!idCatequesis) {
+                divCursos.classList.add('d-none');
+                selectCurso.innerHTML = '<option value="">Seleccione un curso</option>';
+                return;
+            }
+
+            try {
+                const res = await fetch(`php/obtener_cursos.php?id_catequesis=${idCatequesis}`);
+                const data = await res.json();
+                if (data.status && data.cursos.length > 0) {
+                    selectCurso.innerHTML = '<option value="">Seleccione un curso</option>';
+                    data.cursos.forEach(curso => {
+                        const option = document.createElement('option');
+                        option.value = curso.id_curso;
+                        option.textContent = `${curso.nombre} (${curso.fecha_inicio} - ${curso.fecha_fin})`;
+                        selectCurso.appendChild(option);
+                    });
+                    divCursos.classList.remove('d-none');
+                } else {
+                    selectCurso.innerHTML = '<option value="">No hay cursos disponibles</option>';
+                    divCursos.classList.remove('d-none');
+                }
+            } catch (err) {
+                console.error('Error al cargar cursos', err);
+                selectCurso.innerHTML = '<option value="">Error cargando cursos</option>';
+                divCursos.classList.remove('d-none');
+            }
+        });
+
+        // Manejar submit del formulario para guardar asignación
+        formAsignar.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(formAsignar);
+
+            try {
+                const res = await fetch('php/guardar_feligres_catequesis.php', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await res.json();
+
+                if (data.status) {
+                    alert('Asignación guardada correctamente.');
+                    modalAsignar.hide();
+                    // Aquí podrías recargar o actualizar la tabla, si quieres
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            } catch (err) {
+                console.error('Error al guardar asignación', err);
+                alert('Error en la conexión, intente nuevamente.');
+            }
+        });
+
+        // Inicializar cargando las catequesis
+        cargarCatequesis();
+    }
 
 
     document.addEventListener('DOMContentLoaded', () => {
+        asignarCatequesis()
         const parroquia = document.getElementById('parroquia');
         const datosFeligres = document.getElementById('datosFeligres');
         const sacramento = document.getElementById('sacramento');
@@ -313,7 +434,7 @@ $sacramentos = getSacramentos($pdo);
         });
 
         // Mostrar campos adicionales según sacramento
-        sacramento.addEventListener("change", (e) => { 
+        sacramento.addEventListener("change", (e) => {
             const selectedOption = e.target.options[e.target.selectedIndex];
             const sacramentoNombre = selectedOption.getAttribute("data-sacramento");
 
