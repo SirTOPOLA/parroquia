@@ -379,6 +379,15 @@ document.addEventListener('DOMContentLoaded', () => {
             { tipo: sacramentoSeleccionado }
         ]));
 
+        console.log(`
+       sacramento: ${sacramento}
+       parientes: ${parientes}
+      
+       padrinos: ${padrino}
+        `)
+
+
+
         fetch('php/guardar_feligres.php', {
             method: 'POST',
             body: formData
