@@ -1,7 +1,8 @@
 <?php
+// Suponiendo que $pdo ya está definido y es una instancia de PDO
 
-
-$sql = "SELECT 
+$sql = "
+SELECT 
     f.id_feligres,
     CONCAT(f.nombre, ' ', f.apellido) AS feligres,
     p.nombre AS parroquia,
@@ -15,24 +16,31 @@ FROM feligreses f
 LEFT JOIN parroquias p ON f.id_parroquia = p.id_parroquia
 LEFT JOIN curso_feligres cf ON f.id_feligres = cf.id_feligres
 LEFT JOIN cursos c ON cf.id_curso = c.id_curso
-LEFT JOIN catequesis cat ON c.id_catequesis = cat.id_catequesis
 LEFT JOIN feligres_sacramento fs ON f.id_feligres = fs.id_feligres
 LEFT JOIN sacramentos s ON fs.id_sacramento = s.id_sacramento
-WHERE cf.id_feligres IS NOT NULL
+WHERE cf.id_feligres IS NOT NULL OR fs.id_feligres IS NOT NULL
 ORDER BY f.apellido, f.nombre";
 
 $stmt = $pdo->query($sql);
 $registros = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Función de colores según estado
+function estadoColor($estado)
+{
+    return match (strtolower($estado)) {
+        'pendiente' => 'secondary',
+        'en_proceso' => 'warning',
+        'completado' => 'success',
+        default => 'dark',
+    };
+}
 ?>
+
 <main id="content" class="container mt-4">
     <h2 class="mb-4"><i class="bi bi-people-fill me-2"></i>Gestión de Evaluaciones Catequéticas</h2>
 
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
-        <!--  <form class="d-flex flex-grow-1 me-2" method="GET">
-            <input class="form-control me-2" type="search" name="buscar" value="<?= htmlspecialchars($buscar) ?>"
-                placeholder="Buscar por nombre o apellido...">
-            <button class="btn btn-outline-primary" type="submit"><i class="bi bi-search"></i></button>
-        </form> -->
+
 
     </div>
 
@@ -128,32 +136,48 @@ $registros = $stmt->fetchAll(PDO::FETCH_ASSOC);
     let cursoActual = {}, sacramentoActual = {};
 
     // Mostrar modal de curso
-    function cambiarEstadoCurso(idFeligres, idCurso) {
-        cursoActual = { idFeligres, idCurso };
-        const fila = document.querySelector(`#curso-estado-${idFeligres}`).closest('tr');
-        const nombre = fila.children[1].textContent;
-        const curso = fila.children[3].textContent;
-        document.getElementById('nombreCursoFeligres').textContent = `${nombre} (${curso})`;
-        new bootstrap.Modal(document.getElementById('modalEstadoCurso')).show();
-    }
+  function cambiarEstadoCurso(idFeligres, idCurso) {
+    cursoActual = { id_feligres: idFeligres, id_curso: idCurso };
+    const fila = document.querySelector(`#curso-estado-${idFeligres}`).closest('tr');
+    const nombre = fila.children[1].textContent;
+    const curso = fila.children[3].textContent;
+    document.getElementById('nombreCursoFeligres').textContent = `${nombre} (${curso})`;
+    new bootstrap.Modal(document.getElementById('modalEstadoCurso')).show();
+}
+
 
     // Confirmar cambio curso
     document.getElementById('confirmarCambioCurso').addEventListener('click', () => {
-        fetch('php/estado_curso.php', {
-            method: 'POST',
-            body: new URLSearchParams(cursoActual)
-        })
-            .then(res => res.json())
-            .then(data => {
-                const span = document.getElementById(`curso-estado-${cursoActual.idFeligres}`);
-                span.textContent = data.estado;
-                span.className = 'badge bg-' + data.color;
-                bootstrap.Modal.getInstance(document.getElementById('modalEstadoCurso')).hide();
-            });
+    console.log('Enviando cursoActual:', cursoActual);
+    fetch('php/estado_curso.php', {
+        method: 'POST',
+        body: new URLSearchParams(cursoActual)
+    })
+    .then(res => {
+        if (!res.ok) throw new Error('Error HTTP ' + res.status);
+        return res.json();
+    })
+    .then(data => {
+        if(data.error){
+            console.error('Error backend:', data.error);
+            alert('Error: ' + data.error);
+            return;
+        }
+        const span = document.getElementById(`curso-estado-${cursoActual.idFeligres}`);
+        span.textContent = data.estado;
+        span.className = 'badge bg-' + data.color;
+        bootstrap.Modal.getInstance(document.getElementById('modalEstadoCurso')).hide();
+    })
+    .catch(err => {
+        console.error('Error en fetch:', err);
+        alert('Error en comunicación con el servidor');
     });
+});
+
 
     // Mostrar modal de sacramento
     function cambiarEstadoSacramento(idFeligres, idSacramento) {
+         sacramentoActual = { id_feligres: idFeligres, id_sacramento: idSacramento };
         sacramentoActual = { idFeligres, idSacramento };
         const fila = document.querySelector(`#sacramento-estado-${idFeligres}`).closest('tr');
         const nombre = fila.children[1].textContent;
@@ -176,16 +200,5 @@ $registros = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 bootstrap.Modal.getInstance(document.getElementById('modalEstadoSacramento')).hide();
             });
     });
- 
+
 </script>
-<?php
-function estadoColor($estado)
-{
-    return match ($estado) {
-        'pendiente' => 'secondary',
-        'en_proceso' => 'warning',
-        'completado' => 'success',
-        default => 'dark',
-    };
-}
-?>
