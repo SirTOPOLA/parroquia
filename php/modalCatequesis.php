@@ -49,16 +49,19 @@ function obtenerFeligresesPorCurso($pdo, $id_curso) {
 <div class="modal fade" id="modalCatequesisDetalle" tabindex="-1" aria-labelledby="modalCatequesisLabel" aria-hidden="true">
   <div class="modal-dialog modal-xl modal-dialog-scrollable">
     <div class="modal-content shadow-lg rounded-4 border-0">
-      <div class="modal-header bg-primary text-white" style="background: linear-gradient(90deg, #4e73df, #224abe);">
-        <h5 class="modal-title text-white d-flex align-items-center" id="modalCatequesisLabel">
+      
+      <!-- Encabezado -->
+      <div class="modal-header bg-primary bg-gradient text-white">
+        <h5 class="modal-title d-flex align-items-center" id="modalCatequesisLabel">
           <i class="bi bi-book-fill me-2 fs-4"></i>
-          Detalles de la Catequesis: 
+          Detalles de la Catequesis:
           <span class="ms-2 badge bg-light text-dark"><?= htmlspecialchars($catequesis['nombre']) ?></span>
         </h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
       </div>
-      <div class="modal-body bg-light-subtle">
 
+      <!-- Cuerpo -->
+      <div class="modal-body bg-white">
         <?php if (empty($cursos)): ?>
           <div class="alert alert-warning d-flex align-items-center" role="alert">
             <i class="bi bi-exclamation-triangle-fill me-2"></i>
@@ -70,23 +73,23 @@ function obtenerFeligresesPorCurso($pdo, $id_curso) {
               $feligreses = obtenerFeligresesPorCurso($pdo, $curso['id_curso']);
               $catequistas = obtenerCatequistas($pdo, $curso['id_curso']);
             ?>
-            <div class="card mb-4 shadow-sm border-start border-5 border-primary rounded-4 ">
-              <div class="card-header bg-white d-flex flex-column flex-md-row justify-content-between align-items-md-center rounded-top-4">
+            <div class="card mb-4 shadow-sm border-start border-5 border-light rounded-4">
+              <div class="card-header bg-light d-flex flex-column flex-md-row justify-content-between align-items-md-center rounded-top-4">
                 <div>
-                  <h6 class="mb-1">
+                  <h6 class="mb-1 text-dark">
                     <i class="bi bi-mortarboard-fill me-1 text-primary"></i> Curso: <?= htmlspecialchars($curso['nombre']) ?>
                   </h6>
                   <small class="text-muted"><i class="bi bi-calendar-event me-1"></i> <?= $catequesis['nombre'] ?></small><br>
-                  <span class="badge bg-secondary bg-opacity-10 text-white me-2">
+                  <span class="badge bg-primary-subtle text-primary me-2">
                     <i class="bi bi-calendar-plus me-1"></i> Inicio: <?= $curso['fecha_inicio'] ?>
                   </span>
-                  <span class="badge bg-secondary bg-opacity-10 text-white">
+                  <span class="badge bg-success-subtle text-success">
                     <i class="bi bi-calendar-check me-1"></i> Fin: <?= $curso['fecha_fin'] ?>
                   </span>
                 </div>
                 <?php if (!empty($catequistas)): ?>
                   <div class="mt-3 mt-md-0 text-md-end">
-                    <span class="fw-semibold text-muted">
+                    <span class="fw-semibold text-secondary">
                       <i class="bi bi-person-lines-fill me-1 text-success"></i>Catequistas:
                     </span><br>
                     <?= implode(', ', array_map(fn($c) => htmlspecialchars($c['nombre'].' '.$c['apellido']), $catequistas)) ?>
@@ -105,8 +108,7 @@ function obtenerFeligresesPorCurso($pdo, $id_curso) {
                           <th>Nombre Completo</th>
                           <th>Fecha Nacimiento</th>
                           <th>Género</th>
-                          <th>Teléfono</th>
-                          <th>Estado Civil</th>
+                          <th>Teléfono</th> 
                         </tr>
                       </thead>
                       <tbody>
@@ -116,8 +118,7 @@ function obtenerFeligresesPorCurso($pdo, $id_curso) {
                             <td><?= htmlspecialchars($f['nombre'] . ' ' . $f['apellido']) ?></td>
                             <td class="text-center"><?= $f['fecha_nacimiento'] ?></td>
                             <td class="text-center"><?= $f['genero'] ?></td>
-                            <td class="text-center"><?= htmlspecialchars($f['telefono']) ?></td>
-                            <td class="text-center"><?= ucfirst($f['estado_civil']) ?></td>
+                            <td class="text-center"><?= htmlspecialchars($f['telefono']) ?></td> 
                           </tr>
                         <?php endforeach ?>
                       </tbody>
@@ -128,13 +129,16 @@ function obtenerFeligresesPorCurso($pdo, $id_curso) {
             </div>
           <?php endforeach; ?>
         <?php endif; ?>
-
       </div>
-      <div class="modal-footer bg-white border-top-0">
-        <button class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">
+
+      <!-- Footer -->
+      <div class="modal-footer bg-light border-top-0">
+        <button class="btn btn-outline-primary rounded-pill px-4" data-bs-dismiss="modal">
           <i class="bi bi-x-lg me-1"></i> Cerrar
         </button>
       </div>
+
     </div>
   </div>
 </div>
+

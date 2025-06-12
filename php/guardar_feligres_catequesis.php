@@ -1,6 +1,5 @@
-<?php
+<?php 
 header('Content-Type: application/json');
-
 require '../config/conexion.php';
 
 // Validar datos POST
@@ -16,15 +15,13 @@ if (!$idCatequesis || !is_numeric($idCatequesis)) {
     echo json_encode(['status' => false, 'message' => 'ID de catequesis inválido']);
     exit;
 }
-// id_curso puede ser opcional o nulo
 if ($idCurso !== null && $idCurso !== '' && !is_numeric($idCurso)) {
     echo json_encode(['status' => false, 'message' => 'ID de curso inválido']);
     exit;
 }
 
 try {
-    
-    // Verificar si ya está inscrito para evitar duplicados
+    // Verificar si ya está inscrito para evitar duplicados en catequesis
     $stmtCheck = $pdo->prepare("SELECT COUNT(*) FROM feligres_catequesis WHERE id_feligres = :id_feligres AND id_catequesis = :id_catequesis");
     $stmtCheck->execute([
         ':id_feligres' => $idFeligres,
@@ -37,16 +34,31 @@ try {
         exit;
     }
 
-    // Insertar inscripción
+    // Insertar en feligres_catequesis
     $stmt = $pdo->prepare("INSERT INTO feligres_catequesis (id_feligres, id_catequesis, fecha_inscripcion) VALUES (:id_feligres, :id_catequesis, CURDATE())");
     $stmt->execute([
         ':id_feligres' => $idFeligres,
         ':id_catequesis' => $idCatequesis,
     ]);
 
-    // Si necesitas relacionar curso también, deberías tener otra tabla que relacione feligres_curso,
-    // o bien agregar un campo curso_id en feligres_catequesis (en este ejemplo no está definido).
-    // Aquí puedes agregar la lógica si tienes esa tabla.
+    // Insertar en curso_feligres si se proporciona curso
+    if (!empty($idCurso)) {
+        // Validar que el curso exista antes de insertar (opcional pero recomendable)
+        $stmtCurso = $pdo->prepare("SELECT COUNT(*) FROM cursos WHERE id_curso = :id_curso");
+        $stmtCurso->execute([':id_curso' => $idCurso]);
+        $cursoExiste = $stmtCurso->fetchColumn();
+
+        if ($cursoExiste) {
+            $stmtCursoIns = $pdo->prepare("INSERT INTO curso_feligres (id_feligres, id_curso, estado, fecha_inscripcion) VALUES (:id_feligres, :id_curso, 'pendiente', CURDATE())");
+            $stmtCursoIns->execute([
+                ':id_feligres' => $idFeligres,
+                ':id_curso' => $idCurso
+            ]);
+        } else {
+            echo json_encode(['status' => false, 'message' => 'El curso no existe']);
+            exit;
+        }
+    }
 
     echo json_encode(['status' => true, 'message' => 'Asignación guardada correctamente']);
 } catch (Exception $e) {

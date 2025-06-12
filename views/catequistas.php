@@ -124,6 +124,37 @@ $cursos = $pdo->query("SELECT id_curso, nombre FROM cursos ORDER BY nombre")->fe
 
     <!-- Modales Ver y Asignar -->
     <?php foreach ($catequistas as $c): ?>
+        <?php
+$idCatequista = $c['id_catequista'];
+
+$sqlDetalles = "SELECT cu.nombre AS curso_nombre, f.nombre AS feligrese_nombre, f.apellido AS feligrese_apellido
+                FROM curso_catequistas cc
+                INNER JOIN cursos cu ON cc.id_curso = cu.id_curso
+                LEFT JOIN curso_feligres cf ON cu.id_curso = cf.id_curso
+                LEFT JOIN feligreses f ON cf.id_feligres = f.id_feligres
+                WHERE cc.id_catequista = :id_catequista
+                ORDER BY cu.nombre, f.apellido";
+
+$stmtDetalles = $pdo->prepare($sqlDetalles);
+$stmtDetalles->execute(['id_catequista' => $idCatequista]);
+$detalles = $stmtDetalles->fetchAll(PDO::FETCH_ASSOC);
+
+// Agrupar los resultados por curso
+$datosAgrupados = [];
+foreach ($detalles as $d) {
+    $curso = $d['curso_nombre'];
+    $feligrese = trim($d['feligrese_nombre'] . ' ' . $d['feligrese_apellido']);
+
+    if (!isset($datosAgrupados[$curso])) {
+        $datosAgrupados[$curso] = [];
+    }
+
+    if (!empty(trim($feligrese))) {
+        $datosAgrupados[$curso][] = $feligrese;
+    }
+}
+?>
+
         <!-- Modal Ver -->
         <div class="modal fade" id="modalVer<?= $c['id_catequista'] ?>" tabindex="-1">
             <div class="modal-dialog">
@@ -133,12 +164,34 @@ $cursos = $pdo->query("SELECT id_curso, nombre FROM cursos ORDER BY nombre")->fe
                         <button class="btn-close" data-bs-dismiss="modal" type="button"></button>
                     </div>
                     <div class="modal-body">
-                        <p><strong>Nombre:</strong> <?= htmlspecialchars($c['nombre']) ?></p>
-                        <p><strong>Apellido:</strong> <?= htmlspecialchars($c['apellido']) ?></p>
-                        <p><strong>Correo:</strong> <?= htmlspecialchars($c['correo']) ?></p>
-                        <p><strong>Teléfono:</strong> <?= htmlspecialchars($c['telefono']) ?></p>
-                        <p><strong>Cursos asignados:</strong> <?= $c['total_cursos'] ?></p>
-                    </div>
+    <p><strong>Nombre:</strong> <?= htmlspecialchars($c['nombre']) ?></p>
+    <p><strong>Apellido:</strong> <?= htmlspecialchars($c['apellido']) ?></p>
+    <p><strong>Correo:</strong> <?= htmlspecialchars($c['correo']) ?></p>
+    <p><strong>Teléfono:</strong> <?= htmlspecialchars($c['telefono']) ?></p>
+    <p><strong>Total cursos asignados:</strong> <?= $c['total_cursos'] ?></p>
+
+    <hr>
+    <h6><i class="bi bi-journal-text me-1"></i>Cursos Detallados:</h6>
+    <?php if (!empty($datosAgrupados)): ?>
+        <?php foreach ($datosAgrupados as $curso => $feligreses): ?>
+            <div class="mb-2">
+                <strong class="text-primary"><?= htmlspecialchars($curso) ?></strong>
+                <?php if (!empty($feligreses)): ?>
+                    <ul class="mb-0">
+                        <?php foreach ($feligreses as $feligrese): ?>
+                            <li><?= htmlspecialchars($feligrese) ?></li>
+                        <?php endforeach ?>
+                    </ul>
+                <?php else: ?>
+                    <p class="text-muted mb-0">Sin feligreses registrados.</p>
+                <?php endif ?>
+            </div>
+        <?php endforeach ?>
+    <?php else: ?>
+        <p class="text-muted">No hay cursos asignados.</p>
+    <?php endif ?>
+</div>
+
                 </div>
             </div>
         </div>

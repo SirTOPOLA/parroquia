@@ -44,9 +44,7 @@ $sacramentos = getSacramentos($pdo);
                     <th>Nombre Completo</th>
                     <th>Parroquia</th>
                     <th>Fecha Nacimiento</th>
-                    <th>Género</th>
-                    <th>Teléfono</th>
-                    <th>Estado Civil</th>
+                    <th>Género</th> 
                     <th class="text-center">Acciones</th>
                 </tr>
             </thead>
@@ -63,15 +61,17 @@ $sacramentos = getSacramentos($pdo);
                             <td><?= htmlspecialchars($f['nombre_parroquia']) ?></td>
                             <td><?= $f['fecha_nacimiento'] ? date('d/m/Y', strtotime($f['fecha_nacimiento'])) : '' ?></td>
                             <td><?= $f['genero'] === 'M' ? 'Masculino' : ($f['genero'] === 'F' ? 'Femenino' : '') ?></td>
-                            <td><?= htmlspecialchars($f['telefono']) ?></td>
-                            <td><?= ucfirst($f['estado_civil']) ?></td>
+                           
                             <td class="text-center">
                                 <!--  <button class="btn btn-sm btn-warning" data-bs-toggle="modal"
                                     onclick='abrirModalFeligres(<?= json_encode($f, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>)'
                                     data-bs-target="#modalRegistro">
                                     <i class="bi bi-pencil-square"></i>
                                 </button>
- -->
+ --><button class="btn btn-sm btn-info" onclick="verDetalleFeligres(<?= $f['id_feligres'] ?>)">
+  <i class="bi bi-eye"></i> Ver Detalle
+</button>
+
                                 <button class="btn btn-sm btn-primary"
                                     onclick="abrirModalAsignarCatequesis(<?= $f['id_feligres'] ?>)" data-bs-toggle="modal"
                                     data-bs-target="#modalAsignarCatequesis">
@@ -371,7 +371,78 @@ $sacramentos = getSacramentos($pdo);
     </div>
   </div>
 </div>
+
+
+
+<!-- Modal Detalle Feligres -->
+<div class="modal fade" id="modalDetalleFeligres" tabindex="-1">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title">Detalle del Feligrés</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div id="detalleContainer"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 <script>
+
+function verDetalleFeligres(id) {
+  fetch(`php/obtener_detalle_feligres.php?id=${id}`)
+    .then(res => res.json())
+    .then(data => {
+      if (data.error) return alert(data.error);
+
+      const c = data;
+      let html = `
+        <h5>Datos personales</h5><ul>`;
+      for (const key of ['nombre','apellido','fecha_nacimiento','genero','direccion','telefono','estado_civil']) {
+        if (c[key]) html += `<li><strong>${key.replace('_',' ')}:</strong> ${c[key]}</li>`;
+      }
+      html += `</ul><hr><h5>Sacramentos</h5>`;
+      if (c.sacramentos.length) {
+        c.sacramentos.forEach(s => {
+          const pct = s.estado==='completado'?100:(s.estado==='en_proceso'?50:10);
+          html += `
+            <div><strong>${s.nombre}</strong> (${s.fecha || 'sin fecha'})
+              <div class="progress"><div class="progress-bar bg-${s.estado==='completado'?'success':'warning'}" style="width:${pct}%">${s.estado}</div></div>
+            </div>`;
+        });
+      } else html += `<em>No tiene sacramentos</em>`;
+      html += `<hr><h5>Parientes</h5>`;
+      if (c.parientes.length) {
+        html += `<ul>`;
+        c.parientes.forEach(p => html+=`<li>${p.tipo_relacion}: ${p.nombre} ${p.apellido} (sacramento: ${p.sacramento || 'N/A'})</li>`);
+        html += `</ul>`;
+      } else html += `<em>No hay parientes</em>`;
+      html += `<hr><h5>Cursos inscritos</h5>`;
+      if (c.cursos.length) {
+        c.cursos.forEach(cr => {
+          const pct = cr.estado==='completado'?100:(cr.estado==='en_proceso'?50:10);
+          html += `
+            <div class="border p-2 mb-2">
+              <strong>${cr.nombre}</strong> (${cr.fecha_inicio} - ${cr.fecha_fin})
+              <div class="progress mt-1"><div class="progress-bar bg-${cr.estado==='completado'?'success':'warning'}" style="width:${pct}%">${cr.estado}</div></div>
+              <small>Catequistas: ${cr.catequistas.join(', ') || '—'}</small>
+            </div>`;
+        });
+      } else html += `<em>No está inscrito en cursos</em>`;
+
+      document.getElementById('detalleContainer').innerHTML = html;
+      new bootstrap.Modal(document.getElementById('modalDetalleFeligres')).show();
+    })
+    .catch(err => alert("Error al cargar datos: " + err));
+}
+
+
 function abrirModalAsignar(idFeligres) {
   document.getElementById('sacramento_id_feligres').value = idFeligres;
 
@@ -409,7 +480,7 @@ document.getElementById('formAsignarSacramento').addEventListener('submit', e =>
 });
 
 function abrirModalVer(idFeligres) {
-  fetch('php/ver_sacramentos.php?id=' + idFeligres)
+  fetch('php/ver_sacramento.php?id=' + idFeligres)
     .then(res => res.text())
     .then(html => {
       document.getElementById('listaSacramentos').innerHTML = html;
@@ -662,6 +733,7 @@ function abrirModalVer(idFeligres) {
                         datosFeligres.classList.add('d-none');
                         camposAdicionales.classList.add('d-none');
                         bootstrap.Modal.getInstance(document.getElementById('modalRegistro')).hide();
+                        location.reload()
                     } else {
                         alert("Error: " + data.message);
                     }

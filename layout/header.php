@@ -227,7 +227,7 @@
         }
 
         .card-header {
-            background: linear-gradient(90deg, #495057, #343a40);
+          /*   background: linear-gradient(90deg, #495057, #343a40); */
             color: #f8f9fa;
             border-top-left-radius: 1rem;
             border-top-right-radius: 1rem;
