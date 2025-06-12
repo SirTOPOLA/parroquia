@@ -1,91 +1,153 @@
 <?php
-require_once '../config/conexion.php'; // ajusta según tu ruta
+require_once '../config/conexion.php';
+
+function safeRollback(PDO $pdo)
+{
+    if ($pdo->inTransaction()) {
+        $pdo->rollBack();
+    }
+}
 
 header('Content-Type: application/json');
 
 try {
-    // Validar campos obligatorios
-    if (!isset($_POST['nombre'], $_POST['apellido'], $_POST['id_parroquia'], $_POST['sacramentos'])) {
-        throw new Exception("Faltan campos obligatorios.");
-    }
+    // Iniciar transacción
+    $pdo->beginTransaction();
 
-    $nombre = $_POST['nombre'];
-    $apellido = $_POST['apellido'];
-    $id_parroquia = $_POST['id_parroquia'];
+    // Sanitizar entrada
+    $id_feligres = $_POST['id_feligres'] ?? null;
+    $id_parroquia = $_POST['id_parroquia'] ?? null;
+    $nombre = $_POST['nombre'] ?? null;
+    $apellido = $_POST['apellido'] ?? null;
     $fecha_nacimiento = $_POST['fecha_nacimiento'] ?? null;
     $genero = $_POST['genero'] ?? null;
     $direccion = $_POST['direccion'] ?? null;
     $telefono = $_POST['telefono'] ?? null;
-    $estado_civil = $_POST['estado_civil'] ?? 'soltero';
-    $matrimonioJson = $_POST['matrimonio'] ?? null;
-
-    // Insertar feligrés
-    $stmt = $pdo->prepare("INSERT INTO feligreses (id_parroquia, nombre, apellido, fecha_nacimiento, genero, direccion, telefono, estado_civil, matrimonio) 
-                            VALUES (:id_parroquia, :nombre, :apellido, :fecha_nacimiento, :genero, :direccion, :telefono, :estado_civil, :matrimonio)");
-
-    $stmt->bindValue(':id_parroquia', $id_parroquia, PDO::PARAM_INT);
-    $stmt->bindValue(':nombre', $nombre);
-    $stmt->bindValue(':apellido', $apellido);
-    $stmt->bindValue(':fecha_nacimiento', $fecha_nacimiento);
-    $stmt->bindValue(':genero', $genero);
-    $stmt->bindValue(':direccion', $direccion);
-    $stmt->bindValue(':telefono', $telefono);
-    $stmt->bindValue(':estado_civil', $estado_civil);
-    $stmt->bindValue(':matrimonio', $matrimonioJson);
-
-    $stmt->execute();
-    $id_feligres = $pdo->lastInsertId();
-
-    // Registrar sacramentos
-    $sacramentos = json_decode($_POST['sacramentos'], true);
-    foreach ($sacramentos as $sac) {
-        $tipoSacramento = $sac['tipo'];
-
-        // Buscar id del sacramento
-        $sacramentoStmt = $pdo->prepare("SELECT id_sacramento FROM sacramentos WHERE LOWER(nombre) = LOWER(:nombre) LIMIT 1");
-        $sacramentoStmt->bindValue(':nombre', $tipoSacramento);
-        $sacramentoStmt->execute();
-        $sacramentoRow = $sacramentoStmt->fetch(PDO::FETCH_ASSOC);
-
-        if ($sacramentoRow) {
-            $id_sacramento = $sacramentoRow['id_sacramento'];
-            $insertSac = $pdo->prepare("INSERT INTO feligres_sacramento (id_feligres, id_sacramento) VALUES (:id_feligres, :id_sacramento)");
-            $insertSac->bindValue(':id_feligres', $id_feligres, PDO::PARAM_INT);
-            $insertSac->bindValue(':id_sacramento', $id_sacramento, PDO::PARAM_INT);
-            $insertSac->execute();
-        }
+    $estado_civil = $_POST['estado_civil'] ?? null;
+    $matrimonio = $_POST['matrimonio'] ?? null;
+$id_sacramento = isset($_POST['sacramento']) ? intval($_POST['sacramento']) : null;
+    // Validaciones obligatorias
+    if (!$id_parroquia || !$nombre || !$apellido || !$fecha_nacimiento || !$genero) {
+        throw new Exception("Debe completar los campos obligatorios.");
     }
 
-    // Registrar parientes
-    if (!empty($_POST['parientes'])) {
-        $parientes = json_decode($_POST['parientes'], true);
-        foreach ($parientes as $pariente) {
-            $nombreP = $pariente['nombre'];
-            $apellidoP = $pariente['apellido'] ?? null;
-            $telefonoP = $pariente['telefono'] ?? null;
-            $tipo = $pariente['tipo'];
 
-            $insertPar = $pdo->prepare("INSERT INTO parientes (nombre, apellido, telefono, tipo_pariente) VALUES (:nombre, :apellido, :telefono, :tipo)");
-            $insertPar->bindValue(':nombre', $nombreP);
-            $insertPar->bindValue(':apellido', $apellidoP);
-            $insertPar->bindValue(':telefono', $telefonoP);
-            $insertPar->bindValue(':tipo', $tipo);
-            $insertPar->execute();
 
+    $valoresGenero = ['M', 'F', 'Otro'];
+    if (!in_array($genero, $valoresGenero, true)) {
+        throw new Exception("El valor del género es inválido.");
+    }
+
+    // Formatear JSON si hay datos de matrimonio
+    $matrimonio_json = $matrimonio ? json_encode($matrimonio) : null;
+
+    /** INSERTAR O ACTUALIZAR FELIGRÉS **/
+    if ($id_feligres) {
+        // Actualización
+        $sql = "UPDATE feligreses SET 
+                    id_parroquia = ?, nombre = ?, apellido = ?, fecha_nacimiento = ?, 
+                    genero = ?, direccion = ?, telefono = ?, estado_civil = ?, matrimonio = ?
+                WHERE id_feligres = ?";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([
+            $id_parroquia,
+            $nombre,
+            $apellido,
+            $fecha_nacimiento,
+            $genero,
+            $direccion,
+            $telefono,
+            $estado_civil,
+            $matrimonio_json,
+            $id_feligres
+        ]);
+
+        // Limpiar relaciones anteriores
+        $pdo->prepare("DELETE FROM feligres_parientes WHERE id_feligres = ?")->execute([$id_feligres]);
+        $pdo->prepare("DELETE FROM feligres_sacramento WHERE id_feligres = ?")->execute([$id_feligres]);
+
+    } else {
+        // Inserción
+        $stmt = $pdo->prepare("INSERT INTO feligreses (id_parroquia, nombre, apellido, fecha_nacimiento, genero, direccion, telefono, estado_civil, matrimonio)
+                               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt->execute([
+            $id_parroquia,
+            $nombre,
+            $apellido,
+            $fecha_nacimiento,
+            $genero,
+            $direccion,
+            $telefono,
+            $estado_civil,
+            $matrimonio_json
+        ]);
+        $id_feligres = $pdo->lastInsertId();
+    }
+
+    /** GUARDAR PARIENTES **/
+    $parientesJson = $_POST['parientes'] ?? '[]';
+
+    // Decodificar el JSON recibido
+    $parientes = json_decode($parientesJson, true); // true = convierte en array asociativo
+
+    // Validar que sea un array y que no haya errores de decodificación
+    if (!is_array($parientes) || json_last_error() !== JSON_ERROR_NONE) {
+        throw new Exception("Los datos de parientes no tienen el formato correcto: " . json_last_error_msg());
+    }
+
+    // Procesar cada pariente
+    foreach ($parientes as $p) {
+        $id_pariente = $p['id_pariente'] ?? null;
+
+        // Insertar pariente si no existe
+        if (!$id_pariente) {
+            $stmt = $pdo->prepare("INSERT INTO parientes (nombre, apellido, telefono, tipo_pariente, datos_adicionales)
+                               VALUES (?, ?, ?, ?, ?)");
+            $stmt->execute([
+                $p['nombre'] ?? '',
+                $p['apellido'] ?? '',
+                $p['telefono'] ?? '',
+                $p['tipo'] ?? 'padre', // del frontend se envía como 'tipo'
+                json_encode($p['datos_adicionales'] ?? [], JSON_UNESCAPED_UNICODE)
+            ]);
             $id_pariente = $pdo->lastInsertId();
-
-            // Relación feligrés-pariente
-            $insertRel = $pdo->prepare("INSERT INTO feligres_parientes (id_feligres, id_pariente, tipo_relacion) VALUES (:id_feligres, :id_pariente, :tipo_relacion)");
-            $insertRel->bindValue(':id_feligres', $id_feligres, PDO::PARAM_INT);
-            $insertRel->bindValue(':id_pariente', $id_pariente, PDO::PARAM_INT);
-            $insertRel->bindValue(':tipo_relacion', $tipo);
-            $insertRel->execute();
         }
+
+        // Insertar relación feligrés-pariente
+        $stmt = $pdo->prepare("INSERT INTO feligres_parientes (id_feligres, id_pariente, tipo_relacion, id_sacramento)
+                           VALUES (?, ?, ?, ?)");
+        $stmt->execute([
+            $id_feligres,
+            $id_pariente,
+            $p['tipo'] ?? 'padre', // usar el mismo tipo del frontend
+            $id_sacramento 
+        ]);
     }
 
-    echo json_encode(['success' => true, 'message' => 'Feligrés registrado correctamente.']);
+    /** GUARDAR SACRAMENTO (solo uno) **/    
+    $fecha_sacramento = $_POST['fecha_sacramento'] ?? null;
+    $lugar_sacramento = $_POST['lugar_sacramento'] ?? null;
+    $observaciones_sacramento = $_POST['observaciones_sacramento'] ?? null;
+
+    if (!empty($id_sacramento)) {
+        $stmt = $pdo->prepare("INSERT INTO feligres_sacramento (id_feligres, id_sacramento, fecha, lugar, observaciones)
+                               VALUES (?, ?, ?, ?, ?)");
+        $stmt->execute([
+            $id_feligres,
+            $id_sacramento,
+            $fecha_sacramento,
+            $lugar_sacramento,
+            $observaciones_sacramento
+        ]);
+    }
+
+    /** Finalizar transacción **/
+    $pdo->commit();
+
+    echo json_encode(['status' => true, 'message' => 'Feligres registrado correctamente ID: '. $id_feligres]);
 
 } catch (Exception $e) {
-    http_response_code(400);
-    echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+    safeRollback($pdo);
+    http_response_code(500);
+    echo json_encode(['status' => false, 'message' => $e->getMessage()]);
 }
