@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 07-06-2025 a las 12:07:16
+-- Tiempo de generación: 12-06-2025 a las 16:27:34
 -- Versión del servidor: 10.4.32-MariaDB
--- Versión de PHP: 8.2.12
+-- Versión de PHP: 8.0.30
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -33,6 +33,25 @@ CREATE TABLE `catequesis` (
   `descripcion` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Volcado de datos para la tabla `catequesis`
+--
+
+INSERT INTO `catequesis` (`id_catequesis`, `nombre`, `descripcion`) VALUES
+(1, 'preparatoria', 'preparcion');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `catequesis_catequistas`
+--
+
+CREATE TABLE `catequesis_catequistas` (
+  `id` int(11) NOT NULL,
+  `id_catequesis` int(11) NOT NULL,
+  `id_catequista` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 -- --------------------------------------------------------
 
 --
@@ -46,6 +65,13 @@ CREATE TABLE `catequistas` (
   `telefono` varchar(20) DEFAULT NULL,
   `correo` varchar(100) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `catequistas`
+--
+
+INSERT INTO `catequistas` (`id_catequista`, `nombre`, `apellido`, `telefono`, `correo`) VALUES
+(1, 'marta', 'beña', '551718822', 'mar@gmail.com');
 
 -- --------------------------------------------------------
 
@@ -62,6 +88,14 @@ CREATE TABLE `cursos` (
   `fecha_fin` date DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Volcado de datos para la tabla `cursos`
+--
+
+INSERT INTO `cursos` (`id_curso`, `id_catequesis`, `nombre`, `descripcion`, `fecha_inicio`, `fecha_fin`) VALUES
+(1, 1, 'Pastoral', 'un buen viaje', '2025-06-13', '2025-07-02'),
+(2, 1, 'Comunion A', 'un curso de preparacion de la comunion', '2025-06-13', '2025-08-08');
+
 -- --------------------------------------------------------
 
 --
@@ -72,6 +106,35 @@ CREATE TABLE `curso_catequistas` (
   `id_curso` int(11) NOT NULL,
   `id_catequista` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `curso_catequistas`
+--
+
+INSERT INTO `curso_catequistas` (`id_curso`, `id_catequista`) VALUES
+(1, 1),
+(2, 1);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `curso_feligres`
+--
+
+CREATE TABLE `curso_feligres` (
+  `id_feligres` int(11) NOT NULL,
+  `id_curso` int(11) NOT NULL,
+  `estado` enum('pendiente','en_proceso','completado') DEFAULT 'pendiente',
+  `fecha_inscripcion` date DEFAULT NULL,
+  `fecha_finalizacion` date DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `curso_feligres`
+--
+
+INSERT INTO `curso_feligres` (`id_feligres`, `id_curso`, `estado`, `fecha_inscripcion`, `fecha_finalizacion`) VALUES
+(9, 2, 'pendiente', '2025-06-12', NULL);
 
 -- --------------------------------------------------------
 
@@ -97,7 +160,11 @@ CREATE TABLE `feligreses` (
 --
 
 INSERT INTO `feligreses` (`id_feligres`, `id_parroquia`, `nombre`, `apellido`, `fecha_nacimiento`, `genero`, `direccion`, `telefono`, `estado_civil`, `matrimonio`) VALUES
-(1, 1, 'justa', 'carioca', '2018-07-06', 'F', 'begoña 2', '55120456', 'soltero', NULL);
+(1, 1, 'justa', 'carioca', '2018-07-06', 'F', 'begoña 2', '55120456', 'soltero', NULL),
+(2, 1, 'salvador', 'mete ', '2023-06-13', '', 'Sumko', NULL, 'soltero', NULL),
+(4, 1, 'marta', 'mete ', '2023-06-13', '', 'Sumko', NULL, 'soltero', NULL),
+(8, 1, 'sinforosa', 'beña', '2022-02-02', 'F', 'Sumko', NULL, 'soltero', NULL),
+(9, 1, 'Melchor', 'BTobileri', '2018-06-12', 'M', 'Los Angeles', NULL, 'soltero', NULL);
 
 -- --------------------------------------------------------
 
@@ -108,8 +175,19 @@ INSERT INTO `feligreses` (`id_feligres`, `id_parroquia`, `nombre`, `apellido`, `
 CREATE TABLE `feligres_catequesis` (
   `id_feligres` int(11) NOT NULL,
   `id_catequesis` int(11) NOT NULL,
-  `fecha_inscripcion` date DEFAULT NULL
+  `fecha_inscripcion` date DEFAULT NULL,
+  `estado` enum('pendiente','en_proceso','completado') DEFAULT 'pendiente'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `feligres_catequesis`
+--
+
+INSERT INTO `feligres_catequesis` (`id_feligres`, `id_catequesis`, `fecha_inscripcion`, `estado`) VALUES
+(1, 1, '2025-06-12', 'pendiente'),
+(4, 1, '2025-06-12', 'pendiente'),
+(8, 1, '2025-06-12', 'pendiente'),
+(9, 1, '2025-06-12', 'pendiente');
 
 -- --------------------------------------------------------
 
@@ -124,6 +202,20 @@ CREATE TABLE `feligres_parientes` (
   `id_sacramento` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Volcado de datos para la tabla `feligres_parientes`
+--
+
+INSERT INTO `feligres_parientes` (`id_feligres`, `id_pariente`, `tipo_relacion`, `id_sacramento`) VALUES
+(2, 2, 'padre', NULL),
+(2, 3, 'padrino', NULL),
+(2, 4, '', NULL),
+(8, 5, 'padre', NULL),
+(8, 6, 'padrino', NULL),
+(8, 7, '', NULL),
+(9, 8, 'padre', 3),
+(9, 9, 'padrino', 3);
+
 -- --------------------------------------------------------
 
 --
@@ -135,8 +227,16 @@ CREATE TABLE `feligres_sacramento` (
   `id_sacramento` int(11) NOT NULL,
   `fecha` date DEFAULT NULL,
   `lugar` varchar(255) DEFAULT NULL,
-  `observaciones` text DEFAULT NULL
+  `observaciones` text DEFAULT NULL,
+  `estado` enum('pendiente','en_proceso','completado') DEFAULT 'pendiente'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `feligres_sacramento`
+--
+
+INSERT INTO `feligres_sacramento` (`id_feligres`, `id_sacramento`, `fecha`, `lugar`, `observaciones`, `estado`) VALUES
+(9, 3, NULL, NULL, NULL, 'pendiente');
 
 -- --------------------------------------------------------
 
@@ -149,7 +249,7 @@ CREATE TABLE `parientes` (
   `nombre` varchar(100) NOT NULL,
   `apellido` varchar(100) DEFAULT NULL,
   `telefono` varchar(20) DEFAULT NULL,
-  `tipo_pariente` enum('padre','madre','padrino','madrina','testigo') DEFAULT NULL,
+  `tipo_pariente` enum('padre','madre','padrino','padrino','testigo') DEFAULT NULL,
   `datos_adicionales` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`datos_adicionales`))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -158,7 +258,15 @@ CREATE TABLE `parientes` (
 --
 
 INSERT INTO `parientes` (`id_pariente`, `nombre`, `apellido`, `telefono`, `tipo_pariente`, `datos_adicionales`) VALUES
-(1, 'Paulino', 'Alicante', '551454578', 'padre', NULL);
+(1, 'Paulino', 'Alicante', '551454578', 'padre', NULL),
+(2, 'luis', 'amado', '551718820', 'padre', NULL),
+(3, 'marcos', 'matias', '55147850', 'padrino', NULL),
+(4, 'marta', 'beña', '551715820', '', NULL),
+(5, 'nestor', 'beña', '551718822', 'padre', '[]'),
+(6, 'luis', 'amado', '551715820', 'padrino', '[]'),
+(7, 'marta', 'beña', '551718822', '', '[]'),
+(8, 'nestor', 'beña', '551718822', 'padre', '[]'),
+(9, 'luis', 'amado', '551715820', 'padrino', '[]');
 
 -- --------------------------------------------------------
 
@@ -208,7 +316,10 @@ CREATE TABLE `sacramentos` (
 --
 
 INSERT INTO `sacramentos` (`id_sacramento`, `nombre`) VALUES
-(1, 'bautizmo');
+(2, 'bautismo'),
+(3, 'confirmacion'),
+(4, 'comunion'),
+(5, 'matrimonio');
 
 -- --------------------------------------------------------
 
@@ -243,6 +354,14 @@ INSERT INTO `usuarios` (`id`, `nombre`, `dni`, `usuario`, `contrasena`, `rol`, `
 --
 ALTER TABLE `catequesis`
   ADD PRIMARY KEY (`id_catequesis`);
+
+--
+-- Indices de la tabla `catequesis_catequistas`
+--
+ALTER TABLE `catequesis_catequistas`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `id_catequesis` (`id_catequesis`),
+  ADD KEY `id_catequista` (`id_catequista`);
 
 --
 -- Indices de la tabla `catequistas`
@@ -334,31 +453,37 @@ ALTER TABLE `usuarios`
 -- AUTO_INCREMENT de la tabla `catequesis`
 --
 ALTER TABLE `catequesis`
-  MODIFY `id_catequesis` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_catequesis` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT de la tabla `catequesis_catequistas`
+--
+ALTER TABLE `catequesis_catequistas`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `catequistas`
 --
 ALTER TABLE `catequistas`
-  MODIFY `id_catequista` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_catequista` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT de la tabla `cursos`
 --
 ALTER TABLE `cursos`
-  MODIFY `id_curso` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_curso` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de la tabla `feligreses`
 --
 ALTER TABLE `feligreses`
-  MODIFY `id_feligres` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id_feligres` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT de la tabla `parientes`
 --
 ALTER TABLE `parientes`
-  MODIFY `id_pariente` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id_pariente` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT de la tabla `parroquias`
@@ -370,7 +495,7 @@ ALTER TABLE `parroquias`
 -- AUTO_INCREMENT de la tabla `sacramentos`
 --
 ALTER TABLE `sacramentos`
-  MODIFY `id_sacramento` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id_sacramento` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT de la tabla `usuarios`
@@ -381,6 +506,13 @@ ALTER TABLE `usuarios`
 --
 -- Restricciones para tablas volcadas
 --
+
+--
+-- Filtros para la tabla `catequesis_catequistas`
+--
+ALTER TABLE `catequesis_catequistas`
+  ADD CONSTRAINT `catequesis_catequistas_ibfk_1` FOREIGN KEY (`id_catequesis`) REFERENCES `catequesis` (`id_catequesis`),
+  ADD CONSTRAINT `catequesis_catequistas_ibfk_2` FOREIGN KEY (`id_catequista`) REFERENCES `catequistas` (`id_catequista`);
 
 --
 -- Filtros para la tabla `cursos`
