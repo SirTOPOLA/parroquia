@@ -1,4 +1,4 @@
-<?php
+<?php 
 $buscar = $_GET['buscar'] ?? '';
 
 // Consulta de parroquias
@@ -14,12 +14,17 @@ $stmt = $pdo->prepare($sql);
 $stmt->execute(['buscar' => "%$buscar%"]);
 $feligreses = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Consulta de parroquias
-$parroquias = $pdo->query("SELECT * FROM parroquias")->fetchAll(PDO::FETCH_ASSOC);
-
 // Consulta de sacramentos
 $sacramentos = getSacramentos($pdo);
 
+// Obtener el ID del sacramento de bautismo
+$id_bautismo = null;
+foreach ($sacramentos as $sac) {
+    if (strtolower($sac['nombre']) === 'bautismo') {
+        $id_bautismo = $sac['id_sacramento'];
+        break;
+    }
+}
 ?>
 
 <main id="content" class="container mt-4">
@@ -55,6 +60,24 @@ $sacramentos = getSacramentos($pdo);
                     </tr>
                 <?php else: ?>
                     <?php foreach ($feligreses as $f): ?>
+                        <?php
+                            // Verificar si el feligrés tiene bautismo en estado "completado"
+                            $sqlBautismo = "SELECT estado FROM feligres_sacramento 
+                                            WHERE id_feligres = :id_feligres AND id_sacramento = :id_bautismo LIMIT 1";
+                            $stmtBautismo = $pdo->prepare($sqlBautismo);
+                            $stmtBautismo->execute([
+                                ':id_feligres' => $f['id_feligres'],
+                                ':id_bautismo' => $id_bautismo
+                            ]);
+                            $bautismo = $stmtBautismo->fetch(PDO::FETCH_ASSOC);
+                            $mostrarAsignarCatequesis = true;
+                            $deshabilitado = false;
+
+                            if ($bautismo && $bautismo['estado'] === 'completado') {
+                                $mostrarAsignarCatequesis = false;
+                                $deshabilitado = true;
+                            }
+                        ?>
                         <tr>
                             <td><?= $f['id_feligres'] ?></td>
                             <td><?= htmlspecialchars($f['nombre'] . ' ' . $f['apellido']) ?></td>
@@ -78,19 +101,20 @@ $sacramentos = getSacramentos($pdo);
                                 </button>
 
                                 <!-- Asignar a Catequesis -->
-                                <button class="btn btn-outline-secondary btn-sm rounded-circle"
-                                    onclick="abrirModalAsignarCatequesis(<?= $f['id_feligres'] ?>)" data-bs-toggle="modal"
-                                    data-bs-target="#modalAsignarCatequesis" data-bs-toggle="tooltip" data-bs-placement="top"
-                                    title="Asignar a Catequesis">
-                                    <i class="bi bi-bookmark-plus"></i>
-                                </button>
-
-                                <!-- Asignar Sacramento -->
-                               <!--  <button class="btn btn-outline-success btn-sm rounded-circle"
-                                    onclick="abrirModalAsignar(<?= $f['id_feligres'] ?>)" data-bs-toggle="tooltip"
-                                    data-bs-placement="top" title="Asignar Sacramento">
-                                    <i class="bi bi-plus-circle"></i>
-                                </button> -->
+                                <?php if (!$deshabilitado): ?>
+                                    <button class="btn btn-outline-secondary btn-sm rounded-circle"
+                                        onclick="abrirModalAsignarCatequesis(<?= $f['id_feligres'] ?>)" data-bs-toggle="modal"
+                                        data-bs-target="#modalAsignarCatequesis" data-bs-toggle="tooltip" data-bs-placement="top"
+                                        title="Asignar a Catequesis">
+                                        <i class="bi bi-bookmark-plus"></i>
+                                    </button>
+                                <?php else: ?>
+                                    <button class="btn btn-outline-secondary btn-sm rounded-circle disabled"
+                                        data-bs-toggle="tooltip" data-bs-placement="top"
+                                        title="No disponible (ya tiene Bautismo completado)">
+                                        <i class="bi bi-lock-fill"></i>
+                                    </button>
+                                <?php endif; ?>
 
                                 <!-- Ver Sacramentos -->
                                 <button class="btn btn-outline-dark btn-sm rounded-circle"
@@ -107,16 +131,14 @@ $sacramentos = getSacramentos($pdo);
                                     <i class="bi bi-trash"></i>
                                 </a>
                             </td>
-
                         </tr>
                     <?php endforeach; ?>
                 <?php endif; ?>
             </tbody>
         </table>
     </div>
-
-    <!-- Aquí se pueden incluir los modales para registro y edición reutilizando código -->
 </main>
+
 <!-- Modal de Registro de Feligres -->
 <div class="modal fade" id="modalRegistro" tabindex="-1" aria-labelledby="modalRegistroFeligresLabel"
     aria-hidden="true">

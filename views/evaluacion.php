@@ -39,13 +39,8 @@ function estadoColor($estado)
 <main id="content" class="container mt-4">
     <h2 class="mb-4"><i class="bi bi-people-fill me-2"></i>Gestión de Evaluaciones Catequéticas</h2>
 
-    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
-
-
-    </div>
-
     <div class="table-responsive">
-        <table class="table table-bordered table-hover">
+        <table class="table table-bordered table-hover align-middle">
             <thead class="table-light">
                 <tr>
                     <th>#</th>
@@ -66,21 +61,25 @@ function estadoColor($estado)
                         <td><?= htmlspecialchars($r['parroquia']) ?></td>
                         <td><?= htmlspecialchars($r['curso']) ?></td>
                         <td>
-                            <span class="badge bg-<?= estadoColor($r['estado_curso']) ?>"
-                                id="curso-estado-<?= $r['id_feligres'] ?>"><?= $r['estado_curso'] ?></span>
+                            <span class="badge bg-<?= estadoColor($r['estado_curso']) ?>"><?= htmlspecialchars($r['estado_curso']) ?></span>
                         </td>
                         <td><?= htmlspecialchars($r['sacramento']) ?></td>
                         <td>
-                            <span class="badge bg-<?= estadoColor($r['estado_sacramento']) ?>"
-                                id="sacramento-estado-<?= $r['id_feligres'] ?>"><?= $r['estado_sacramento'] ?></span>
+                            <span 
+                              class="badge bg-<?= estadoColor($r['estado_sacramento']) ?>" 
+                              id="sacramento-estado-<?= $r['id_feligres'] ?>"
+                            >
+                              <?= htmlspecialchars($r['estado_sacramento']) ?>
+                            </span>
                         </td>
                         <td>
-                            <button class="btn btn-sm btn-primary"
-                                onclick="cambiarEstadoCurso(<?= $r['id_feligres'] ?>, <?= $r['id_curso'] ?>)">Cambiar
-                                Curso</button>
-                            <button class="btn btn-sm btn-success"
-                                onclick="cambiarEstadoSacramento(<?= $r['id_feligres'] ?>, <?= $r['id_sacramento'] ?>)">Cambiar
-                                Sacramento</button>
+                            <button 
+                                class="btn btn-sm btn-success" 
+                                onclick="abrirModalEstadoSacramento(<?= $r['id_feligres'] ?>, <?= $r['id_sacramento'] ?>, '<?= addslashes(htmlspecialchars($r['feligres'])) ?>')"
+                                title="Concluir Sacramento"
+                            >
+                                <i class="bi bi-check-circle me-1"></i>Completar
+                            </button>
                         </td>
                     </tr>
                 <?php endforeach ?>
@@ -88,117 +87,113 @@ function estadoColor($estado)
         </table>
     </div>
 
+    <!-- Modal para concluir el Sacramento -->
+    <div class="modal fade" id="modalEstadoSacramento" tabindex="-1" aria-labelledby="modalEstadoSacramentoLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header bg-success text-white">
+            <h5 class="modal-title" id="modalEstadoSacramentoLabel">Concluir Sacramento</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+          </div>
 
-    <!-- Aquí se pueden incluir los modales para registro y edición reutilizando código -->
-    <!-- Modal Estado Curso -->
-    <div class="modal fade" id="modalEstadoCurso" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title">Cambiar estado del curso</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    ¿Estás seguro de que deseas cambiar el estado del curso para <strong
-                        id="nombreCursoFeligres"></strong>?
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-primary" id="confirmarCambioCurso">Confirmar</button>
-                </div>
-            </div>
+          <div class="modal-body">
+            <p>¿Deseas marcar el sacramento de <strong id="nombreSacramentoFeligres"></strong> como <span class="badge bg-success">completado</span>?</p>
+            
+            <form id="formSacramento">
+              <div class="mb-3">
+                <label for="fechaSacramento" class="form-label">Fecha del Sacramento <span class="text-danger">*</span></label>
+                <input type="date" class="form-control" id="fechaSacramento" name="fechaSacramento" required>
+              </div>
+
+              <div class="mb-3">
+                <label for="lugarSacramento" class="form-label">Lugar <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="lugarSacramento" name="lugarSacramento" maxlength="255" placeholder="Ejemplo: Parroquia San Juan" required>
+              </div>
+
+              <div class="mb-3">
+                <label for="observacionesSacramento" class="form-label">Observaciones</label>
+                <textarea class="form-control" id="observacionesSacramento" name="observacionesSacramento" rows="3" placeholder="Comentarios adicionales (opcional)"></textarea>
+              </div>
+            </form>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="button" class="btn btn-success" id="confirmarCambioSacramento">Confirmar</button>
+          </div>
         </div>
+      </div>
     </div>
-
-    <!-- Modal Estado Sacramento -->
-    <div class="modal fade" id="modalEstadoSacramento" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header bg-success text-white">
-                    <h5 class="modal-title">Cambiar estado del sacramento</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    ¿Estás seguro de que deseas cambiar el estado del sacramento para <strong
-                        id="nombreSacramentoFeligres"></strong>?
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-success" id="confirmarCambioSacramento">Confirmar</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
 </main>
 
 <script>
-    let cursoActual = {}, sacramentoActual = {};
+  let sacramentoActual = {};
 
-    // Mostrar modal de curso
-  function cambiarEstadoCurso(idFeligres, idCurso) {
-    cursoActual = { id_feligres: idFeligres, id_curso: idCurso };
-    const fila = document.querySelector(`#curso-estado-${idFeligres}`).closest('tr');
-    const nombre = fila.children[1].textContent;
-    const curso = fila.children[3].textContent;
-    document.getElementById('nombreCursoFeligres').textContent = `${nombre} (${curso})`;
-    new bootstrap.Modal(document.getElementById('modalEstadoCurso')).show();
-}
+  function abrirModalEstadoSacramento(idFeligres, idSacramento, nombreFeligres) {
+    sacramentoActual = { idFeligres, idSacramento };
+    document.getElementById('nombreSacramentoFeligres').textContent = nombreFeligres;
 
+    // Resetear formulario
+    document.getElementById('formSacramento').reset();
 
-    // Confirmar cambio curso
-    document.getElementById('confirmarCambioCurso').addEventListener('click', () => {
-    console.log('Enviando cursoActual:', cursoActual);
-    fetch('php/estado_curso.php', {
-        method: 'POST',
-        body: new URLSearchParams(cursoActual)
-    })
-    .then(res => {
-        if (!res.ok) throw new Error('Error HTTP ' + res.status);
-        return res.json();
-    })
-    .then(data => {
-        if(data.error){
-            console.error('Error backend:', data.error);
-            alert('Error: ' + data.error);
-            return;
-        }
-        const span = document.getElementById(`curso-estado-${cursoActual.idFeligres}`);
-        span.textContent = data.estado;
-        span.className = 'badge bg-' + data.color;
-        bootstrap.Modal.getInstance(document.getElementById('modalEstadoCurso')).hide();
-    })
-    .catch(err => {
-        console.error('Error en fetch:', err);
-        alert('Error en comunicación con el servidor');
-    });
-});
+    // Mostrar modal
+    const modalEl = document.getElementById('modalEstadoSacramento');
+    const modal = new bootstrap.Modal(modalEl);
+    modal.show();
+  }
 
+  document.getElementById('confirmarCambioSacramento').addEventListener('click', () => {
+    const fecha = document.getElementById('fechaSacramento').value;
+    const lugar = document.getElementById('lugarSacramento').value.trim();
+    const observaciones = document.getElementById('observacionesSacramento').value.trim();
 
-    // Mostrar modal de sacramento
-    function cambiarEstadoSacramento(idFeligres, idSacramento) {
-         sacramentoActual = { id_feligres: idFeligres, id_sacramento: idSacramento };
-        sacramentoActual = { idFeligres, idSacramento };
-        const fila = document.querySelector(`#sacramento-estado-${idFeligres}`).closest('tr');
-        const nombre = fila.children[1].textContent;
-        const sacramento = fila.children[5].textContent;
-        document.getElementById('nombreSacramentoFeligres').textContent = `${nombre} (${sacramento})`;
-        new bootstrap.Modal(document.getElementById('modalEstadoSacramento')).show();
+    if (!fecha) {
+      alert('Por favor, ingresa la fecha del sacramento.');
+      return;
+    }
+    if (!lugar) {
+      alert('Por favor, ingresa el lugar del sacramento.');
+      return;
     }
 
-    // Confirmar cambio sacramento
-    document.getElementById('confirmarCambioSacramento').addEventListener('click', () => {
-        fetch('php/estado_sacramento.php', {
-            method: 'POST',
-            body: new URLSearchParams(sacramentoActual)
-        })
-            .then(res => res.json())
-            .then(data => {
-                const span = document.getElementById(`sacramento-estado-${sacramentoActual.idFeligres}`);
-                span.textContent = data.estado;
-                span.className = 'badge bg-' + data.color;
-                bootstrap.Modal.getInstance(document.getElementById('modalEstadoSacramento')).hide();
-            });
-    });
+    const datos = {
+      id_feligres: sacramentoActual.idFeligres,
+      id_sacramento: sacramentoActual.idSacramento,
+      fecha,
+      lugar,
+      observaciones
+    };
 
+    fetch('php/estado_sacramento.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams(datos)
+    })
+    .then(res => {
+      if (!res.ok) throw new Error('Error en la respuesta');
+      return res.json();
+    })
+    .then(data => {
+      if (data.error) {
+        alert('Error: ' + data.error);
+        return;
+      }
+
+      // Actualizar estado en la tabla
+      const spanEstado = document.getElementById(`sacramento-estado-${sacramentoActual.idFeligres}`);
+      if (spanEstado) {
+        spanEstado.textContent = data.estado;
+        spanEstado.className = 'badge bg-' + data.color;
+      }
+
+      // Cerrar modal
+      const modalEl = document.getElementById('modalEstadoSacramento');
+      const modal = bootstrap.Modal.getInstance(modalEl);
+      modal.hide();
+    })
+    .catch(err => {
+      console.error(err);
+      alert('Ocurrió un error al registrar el sacramento.');
+    });
+  });
 </script>

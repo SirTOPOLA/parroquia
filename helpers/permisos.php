@@ -29,6 +29,7 @@ function verificarAcceso($vista)
             'catequistas',  
             'catequesis',  
             'parroquias',  
+            'reportes',  
             'evaluacion',  
             'feligreses', 
             'sacramentos', 

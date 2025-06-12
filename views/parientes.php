@@ -52,37 +52,37 @@ $feligreses = $stmt->fetchAll(PDO::FETCH_ASSOC);
         </div>
 
         <table class="table table-bordered table-hover align-middle">
-           <thead class="table-light">
-    <tr>
-        <th>ID</th>
-        <th>Nombre del Feligrés</th>
-        <th>Fecha de Nacimiento</th>
-        <th>Género</th>
-        <th>Parientes Asociados</th>
-        <th>Sacramentos</th> <!-- NUEVA COLUMNA -->
-        <th class="text-center">Acciones</th>
-    </tr>
-</thead>
-<tbody>
-    <?php foreach ($feligreses as $f): ?>
-        <tr>
-            <td><?= $f['id_feligres'] ?></td>
-            <td><?= htmlspecialchars($f['nombre'] . ' ' . $f['apellido']) ?></td>
-            <td><?= date('d/m/Y', strtotime($f['fecha_nacimiento'])) ?></td>
-            <td><?= $f['genero'] ?></td>
-            <td><?= $f['parientes'] ?: '<em>Sin parientes</em>' ?></td>
-            <td><?= $f['sacramentos'] ?: '<em>Sin sacramentos</em>' ?></td>
-            <td class="text-center">
-                <a href="ver_parientes.php?id=<?= $f['id_feligres'] ?>" class="btn btn-sm btn-info">
+            <thead class="table-light">
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre del Feligrés</th>
+                    <th>Fecha de Nacimiento</th>
+                    <th>Género</th>
+                    <th>Parientes Asociados</th>
+                    <th>Sacramentos</th> <!-- NUEVA COLUMNA -->
+                    <th class="text-center">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($feligreses as $f): ?>
+                    <tr>
+                        <td><?= $f['id_feligres'] ?></td>
+                        <td><?= htmlspecialchars($f['nombre'] . ' ' . $f['apellido']) ?></td>
+                        <td><?= date('d/m/Y', strtotime($f['fecha_nacimiento'])) ?></td>
+                        <td><?= $f['genero'] ?></td>
+                        <td><?= $f['parientes'] ?: '<em>Sin parientes</em>' ?></td>
+                        <td><?= $f['sacramentos'] ?: '<em>Sin sacramentos</em>' ?></td>
+                        <td class="text-center">
+                            <!--  <a href="ver_parientes.php?id=<?= $f['id_feligres'] ?>" class="btn btn-sm btn-info">
                     <i class="bi bi-eye"></i> Ver
-                </a>
-                <a href="editar_parientes.php?id=<?= $f['id_feligres'] ?>" class="btn btn-sm btn-warning">
-                    <i class="bi bi-pencil-square"></i> Editar
-                </a>
-            </td>
-        </tr>
-    <?php endforeach ?>
-</tbody>
+                </a> -->
+                            <a href="editar_parientes.php?id=<?= $f['id_feligres'] ?>" class="btn btn-sm btn-warning">
+                                <i class="bi bi-pencil-square"></i> Editar
+                            </a>
+                        </td>
+                    </tr>
+                <?php endforeach ?>
+            </tbody>
 
 
         </table>
