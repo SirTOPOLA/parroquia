@@ -4,35 +4,36 @@ $current = $_GET['vista'] ?? 'dashboard';
 
 // Íconos por vista
 $iconos = [
-  'dashboard' => 'bi-speedometer2',
-  'catequesis' => 'bi-journal-bookmark-fill',
-  'catequistas' => 'bi-person-badge-fill',
-  'cursos' => 'bi-book',
-  'feligreses' => 'bi-people-fill',
-  'parientes' => 'bi-people',
-  'parroquias' => 'bi-building',
-  'evaluacion' => 'bi-cross',
-  'sacramentos' => 'bi-bookmarks',
-  'reportes' => 'bi-bookmarks',
-  'usuarios' => 'bi-person-gear',
-  'perfil' => 'bi-person-circle',
-  'configuracion' => 'bi-gear-wide-connected',
+  'dashboard'    => 'bi-speedometer2',           // Indicador general y panel
+  'catequesis'   => 'bi-book-half',              // Libro abierto, enseñanza
+  'catequistas'  => 'bi-person-badge',           // Persona con placa identificativa
+  'cursos'       => 'bi-journal-text',           // Cuaderno con texto, curso
+  'feligreses'   => 'bi-people-fill',             // Grupo de personas
+  'parientes'    => 'bi-people',                  // Grupo de personas en outline
+  'parroquias'   => 'bi-building',                // Edificio, parroquia
+  'evaluacion'   => 'bi-file-earmark-check',      // Documento con check, evaluación
+  'sacramentos'  => 'bi-award',                   // Medalla o premio (sacramentos como logro)
+  'reportes'     => 'bi-bar-chart-line-fill',    // Gráfica de barras, reportes
+  'usuarios'     => 'bi-person-gear',             // Persona con engranaje (config usuarios)
+  'perfil'       => 'bi-person-circle',           // Perfil de usuario
+  'configuracion'=> 'bi-sliders',                  // Ajustes con sliders, configuración
 ];
+
 
 // Menú por rol
 $menu = [
   'admin' => [
     'Dashboard' => 'dashboard',
+    'Usuarios' => 'usuarios',
+    'Feligreses' => 'feligreses',
     'Catequesis' => 'catequesis',
     'Catequistas' => 'catequistas',
-    'Evaluacion' => 'evaluacion',
     'Cursos' => 'cursos',
-    'Feligreses' => 'feligreses',
     'Parientes' => 'parientes',
     'Parroquias' => 'parroquias',
-    'reportes' => 'reportes',
     'Sacramentos' => 'sacramentos',
-    'Usuarios' => 'usuarios',
+    'Evaluacion' => 'evaluacion',
+    'reportes' => 'reportes',
     'Configuración' => 'configuracion',
   ],
   'secretario' => [
