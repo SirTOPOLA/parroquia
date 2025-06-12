@@ -44,7 +44,7 @@ $sacramentos = getSacramentos($pdo);
                     <th>Nombre Completo</th>
                     <th>Parroquia</th>
                     <th>Fecha Nacimiento</th>
-                    <th>Género</th> 
+                    <th>Género</th>
                     <th class="text-center">Acciones</th>
                 </tr>
             </thead>
@@ -61,36 +61,53 @@ $sacramentos = getSacramentos($pdo);
                             <td><?= htmlspecialchars($f['nombre_parroquia']) ?></td>
                             <td><?= $f['fecha_nacimiento'] ? date('d/m/Y', strtotime($f['fecha_nacimiento'])) : '' ?></td>
                             <td><?= $f['genero'] === 'M' ? 'Masculino' : ($f['genero'] === 'F' ? 'Femenino' : '') ?></td>
-                           
+
                             <td class="text-center">
-                                <!--  <button class="btn btn-sm btn-warning" data-bs-toggle="modal"
-                                    onclick='abrirModalFeligres(<?= json_encode($f, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>)'
-                                    data-bs-target="#modalRegistro">
-                                    <i class="bi bi-pencil-square"></i>
+                                <!-- Ver Detalle -->
+                                <button class="btn btn-outline-info btn-sm rounded-circle"
+                                    onclick="verDetalleFeligres(<?= $f['id_feligres'] ?>)" data-bs-toggle="tooltip"
+                                    data-bs-placement="top" title="Ver Detalle">
+                                    <i class="bi bi-eye"></i>
                                 </button>
- --><button class="btn btn-sm btn-info" onclick="verDetalleFeligres(<?= $f['id_feligres'] ?>)">
-  <i class="bi bi-eye"></i> Ver Detalle
-</button>
 
-                                <button class="btn btn-sm btn-primary"
+                                <!-- Ver DNI Parroquial -->
+                                <button class="btn btn-outline-primary btn-sm rounded-circle"
+                                    onclick="abrirModalDNIParroquial(<?= $f['id_feligres'] ?>)" data-bs-toggle="tooltip"
+                                    data-bs-placement="top" title="Ver DNI Parroquial">
+                                    <i class="bi bi-credit-card-2-front"></i>
+                                </button>
+
+                                <!-- Asignar a Catequesis -->
+                                <button class="btn btn-outline-secondary btn-sm rounded-circle"
                                     onclick="abrirModalAsignarCatequesis(<?= $f['id_feligres'] ?>)" data-bs-toggle="modal"
-                                    data-bs-target="#modalAsignarCatequesis">
-                                    <i class="bi bi-bookmark-plus"></i> Asignar
+                                    data-bs-target="#modalAsignarCatequesis" data-bs-toggle="tooltip" data-bs-placement="top"
+                                    title="Asignar a Catequesis">
+                                    <i class="bi bi-bookmark-plus"></i>
                                 </button>
-                                <!-- Botones en la columna Acciones -->
-                                <a href="#" class="btn btn-success btn-sm"
-                                    onclick="abrirModalAsignar(<?= $f['id_feligres'] ?>)">
-                                    <i class="bi bi-plus-circle"></i> Asignar Sacramento
-                                </a>
-                                <a href="#" class="btn btn-primary btn-sm" onclick="abrirModalVer(<?= $f['id_feligres'] ?>)">
-                                    <i class="bi bi-book"></i> Ver Sacramentos
-                                </a>
 
-                                <a href="../php/eliminar_feligres.php?id=<?= $f['id_feligres'] ?>" class="btn btn-sm btn-danger"
-                                    onclick="return confirm('¿Eliminar este feligrés?')">
+                                <!-- Asignar Sacramento -->
+                               <!--  <button class="btn btn-outline-success btn-sm rounded-circle"
+                                    onclick="abrirModalAsignar(<?= $f['id_feligres'] ?>)" data-bs-toggle="tooltip"
+                                    data-bs-placement="top" title="Asignar Sacramento">
+                                    <i class="bi bi-plus-circle"></i>
+                                </button> -->
+
+                                <!-- Ver Sacramentos -->
+                                <button class="btn btn-outline-dark btn-sm rounded-circle"
+                                    onclick="abrirModalVer(<?= $f['id_feligres'] ?>)" data-bs-toggle="tooltip"
+                                    data-bs-placement="top" title="Ver Sacramentos">
+                                    <i class="bi bi-book"></i>
+                                </button>
+
+                                <!-- Eliminar -->
+                                <a href="../php/eliminar_feligres.php?id=<?= $f['id_feligres'] ?>"
+                                    class="btn btn-outline-danger btn-sm rounded-circle"
+                                    onclick="return confirm('¿Eliminar este feligrés?')" data-bs-toggle="tooltip"
+                                    data-bs-placement="top" title="Eliminar">
                                     <i class="bi bi-trash"></i>
                                 </a>
                             </td>
+
                         </tr>
                     <?php endforeach; ?>
                 <?php endif; ?>
@@ -317,177 +334,334 @@ $sacramentos = getSacramentos($pdo);
 
 <!-- Modal Asignar Sacramento -->
 <div class="modal fade" id="modalAsignarSacramento" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog">
-    <form id="formAsignarSacramento">
-      <div class="modal-content">
-        <div class="modal-header bg-success text-white">
-          <h5 class="modal-title">Asignar Sacramento</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body">
-          <input type="hidden" name="id_feligres" id="sacramento_id_feligres">
-          <div class="mb-3">
-            <label for="id_sacramento" class="form-label">Sacramento</label>
-            <select class="form-select" name="id_sacramento" id="id_sacramento" required>
-              <!-- Opciones se cargan dinámicamente -->
-            </select>
-          </div>
-          <div class="mb-3">
-            <label for="fecha" class="form-label">Fecha</label>
-            <input type="date" class="form-control" name="fecha" required>
-          </div>
-          <div class="mb-3">
-            <label for="lugar" class="form-label">Lugar</label>
-            <input type="text" class="form-control" name="lugar" required>
-          </div>
-          <div class="mb-3">
-            <label for="observaciones" class="form-label">Observaciones</label>
-            <textarea class="form-control" name="observaciones" rows="2"></textarea>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-          <button class="btn btn-success" type="submit">Guardar</button>
-        </div>
-      </div>
-    </form>
-  </div>
+    <div class="modal-dialog">
+        <form id="formAsignarSacramento">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title">Asignar Sacramento</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="id_feligres" id="sacramento_id_feligres">
+                    <div class="mb-3">
+                        <label for="id_sacramento" class="form-label">Sacramento</label>
+                        <select class="form-select" name="id_sacramento" id="id_sacramento" required>
+                            <!-- Opciones se cargan dinámicamente -->
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="fecha" class="form-label">Fecha</label>
+                        <input type="date" class="form-control" name="fecha" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="lugar" class="form-label">Lugar</label>
+                        <input type="text" class="form-control" name="lugar" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="observaciones" class="form-label">Observaciones</label>
+                        <textarea class="form-control" name="observaciones" rows="2"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button class="btn btn-success" type="submit">Guardar</button>
+                </div>
+            </div>
+        </form>
+    </div>
 </div>
 
 <!-- Modal Ver Sacramentos -->
 <div class="modal fade" id="modalVerSacramentos" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header bg-primary text-white">
-        <h5 class="modal-title">Sacramentos del Feligrés</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-        <div id="listaSacramentos"></div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-      </div>
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">Sacramentos del Feligrés</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="listaSacramentos"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
     </div>
-  </div>
 </div>
 
 
 
 <!-- Modal Detalle Feligres -->
 <div class="modal fade" id="modalDetalleFeligres" tabindex="-1">
-  <div class="modal-dialog modal-xl modal-dialog-scrollable">
-    <div class="modal-content">
-      <div class="modal-header bg-primary text-white">
-        <h5 class="modal-title">Detalle del Feligrés</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-        <div id="detalleContainer"></div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-      </div>
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">Detalle del Feligrés</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="detalleContainer"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
     </div>
-  </div>
 </div>
 
+<!-- Modal para seleccionar sacramento -->
+<div class="modal fade" id="modalDNIParroquial" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title"><i class="bi bi-person-vcard me-2"></i>DNI Parroquial</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="contenidoDNIParroquial" class="p-3 border rounded shadow-sm bg-light">
+                    <!-- Aquí se inyecta dinámicamente la tarjeta del DNI -->
+                    <div id="tarjetaParroquial" class="tarjeta mt-2"></div>
+                </div>
+
+                <!-- Botón para imprimir la tarjeta -->
+                <div class="text-end mt-3">
+                    <button onclick="imprimirTarjeta()" class="btn btn-outline-secondary">
+                        <i class="bi bi-printer me-1"></i> Imprimir tarjeta
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
 
 <script>
-
-function verDetalleFeligres(id) {
-  fetch(`php/obtener_detalle_feligres.php?id=${id}`)
-    .then(res => res.json())
-    .then(data => {
-      if (data.error) return alert(data.error);
-
-      const c = data;
-      let html = `
-        <h5>Datos personales</h5><ul>`;
-      for (const key of ['nombre','apellido','fecha_nacimiento','genero','direccion','telefono','estado_civil']) {
-        if (c[key]) html += `<li><strong>${key.replace('_',' ')}:</strong> ${c[key]}</li>`;
-      }
-      html += `</ul><hr><h5>Sacramentos</h5>`;
-      if (c.sacramentos.length) {
-        c.sacramentos.forEach(s => {
-          const pct = s.estado==='completado'?100:(s.estado==='en_proceso'?50:10);
-          html += `
-            <div><strong>${s.nombre}</strong> (${s.fecha || 'sin fecha'})
-              <div class="progress"><div class="progress-bar bg-${s.estado==='completado'?'success':'warning'}" style="width:${pct}%">${s.estado}</div></div>
-            </div>`;
+    function tolstipsAcciones() {
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
         });
-      } else html += `<em>No tiene sacramentos</em>`;
-      html += `<hr><h5>Parientes</h5>`;
-      if (c.parientes.length) {
-        html += `<ul>`;
-        c.parientes.forEach(p => html+=`<li>${p.tipo_relacion}: ${p.nombre} ${p.apellido} (sacramento: ${p.sacramento || 'N/A'})</li>`);
-        html += `</ul>`;
-      } else html += `<em>No hay parientes</em>`;
-      html += `<hr><h5>Cursos inscritos</h5>`;
-      if (c.cursos.length) {
-        c.cursos.forEach(cr => {
-          const pct = cr.estado==='completado'?100:(cr.estado==='en_proceso'?50:10);
-          html += `
+    };
+
+    function abrirModalDNIParroquial(idFeligres) {
+        fetch(`php/obtener_dni_parroquial.php?id=${idFeligres}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                    return;
+                }
+
+                const { feligres, telefono_final, sacramentos } = data;
+
+                let sacramentoSeleccionado = sacramentos[0]; // Selecciona el primero por defecto
+
+                if (sacramentos.length > 1) {
+                    // Si hay más de un sacramento, se puede agregar un selector
+                    let select = `<select class="form-select mb-2" id="selectorSacramento">`;
+                    sacramentos.forEach(s => {
+                        select += `<option value="${s.id_sacramento}">${s.nombre} - (${s.estado})</option>`;
+                    });
+                    select += `</select>`;
+                    document.getElementById('contenidoDNIParroquial').innerHTML = select;
+                    document.getElementById('selectorSacramento').addEventListener('change', e => {
+                        const selectedId = parseInt(e.target.value);
+                        sacramentoSeleccionado = sacramentos.find(s => s.id_sacramento == selectedId);
+                        renderDNI(feligres, telefono_final, sacramentoSeleccionado);
+                    });
+                }
+
+                renderDNI(feligres, telefono_final, sacramentoSeleccionado);
+                const modal = new bootstrap.Modal(document.getElementById('modalDNIParroquial'));
+                modal.show();
+            });
+    }
+
+    function renderDNI(feligres, telefono, sacramento) {
+        const contenedor = document.getElementById('tarjetaParroquial');
+        const edad = calcularEdad(feligres.fecha_nacimiento);
+
+        contenedor.innerHTML = `
+    <div class="text-center">
+      <div class="foto">
+        <i class="bi bi-person-fill"></i>
+      </div>
+      <h3>${feligres.nombre} ${feligres.apellido}</h3>
+    </div>
+    <div class="dato"><strong>Parroquia:</strong> ${feligres.parroquia}</div>
+    <div class="dato"><strong>Sacramento:</strong> ${sacramento.nombre} (${sacramento.estado})</div>
+    <div class="dato"><strong>Fecha de Nacimiento:</strong> ${formatearFecha(feligres.fecha_nacimiento)} (${edad} años)</div>
+    <div class="dato"><strong>Género:</strong> ${feligres.genero}</div>
+    <div class="dato"><strong>Teléfono:</strong> ${telefono}</div>
+    <div class="text-end mt-2 small text-muted">
+      DNI parroquial generado por el sistema
+    </div>
+  `;
+    }
+
+    function calcularEdad(fechaNac) {
+        const f = new Date(fechaNac);
+        const diff = Date.now() - f.getTime();
+        return Math.floor(diff / (1000 * 60 * 60 * 24 * 365.25));
+    }
+
+    function formatearFecha(fecha) {
+        if (!fecha) return '';
+        const d = new Date(fecha);
+        return d.toLocaleDateString('es-ES');
+    }
+
+    function imprimirTarjeta() {
+        const contenido = document.getElementById('tarjetaParroquial').innerHTML;
+
+        const ventana = window.open('', '_blank');
+        ventana.document.write(`
+    <html>
+    <head>
+      <title>Imprimir Tarjeta Parroquial</title>
+      <style>
+        body {
+          font-family: Arial, sans-serif;
+          padding: 20px;
+        }
+        .tarjeta {
+          border: 2px solid #0d6efd;
+          border-radius: 10px;
+          padding: 20px;
+          max-width: 500px;
+          margin: auto;
+          box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .tarjeta h3 {
+          margin-top: 0;
+          color: #0d6efd;
+        }
+        .foto {
+          width: 100px;
+          height: 100px;
+          background-color: #dee2e6;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 40px;
+          color: #6c757d;
+          margin: auto;
+          margin-bottom: 15px;
+        }
+        .dato {
+          margin-bottom: 6px;
+        }
+        @media print {
+          body {
+            margin: 0;
+          }
+        }
+      </style>
+    </head>
+    <body onload="window.print(); window.close();">
+      <div class="tarjeta">
+        ${contenido}
+      </div>
+    </body>
+    </html>
+  `);
+    }
+
+
+    function verDetalleFeligres(id) {
+        fetch(`php/obtener_detalle_feligres.php?id=${id}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.error) return alert(data.error);
+
+                const c = data;
+                let html = `
+        <h5>Datos personales</h5><ul>`;
+                for (const key of ['nombre', 'apellido', 'fecha_nacimiento', 'genero', 'direccion', 'telefono', 'estado_civil']) {
+                    if (c[key]) html += `<li><strong>${key.replace('_', ' ')}:</strong> ${c[key]}</li>`;
+                }
+                html += `</ul><hr><h5>Sacramentos</h5>`;
+                if (c.sacramentos.length) {
+                    c.sacramentos.forEach(s => {
+                        const pct = s.estado === 'completado' ? 100 : (s.estado === 'en_proceso' ? 50 : 10);
+                        html += `
+            <div><strong>${s.nombre}</strong> (${s.fecha || 'sin fecha'})
+              <div class="progress"><div class="progress-bar bg-${s.estado === 'completado' ? 'success' : 'warning'}" style="width:${pct}%">${s.estado}</div></div>
+            </div>`;
+                    });
+                } else html += `<em>No tiene sacramentos</em>`;
+                html += `<hr><h5>Parientes</h5>`;
+                if (c.parientes.length) {
+                    html += `<ul>`;
+                    c.parientes.forEach(p => html += `<li>${p.tipo_relacion}: ${p.nombre} ${p.apellido} (sacramento: ${p.sacramento || 'N/A'})</li>`);
+                    html += `</ul>`;
+                } else html += `<em>No hay parientes</em>`;
+                html += `<hr><h5>Cursos inscritos</h5>`;
+                if (c.cursos.length) {
+                    c.cursos.forEach(cr => {
+                        const pct = cr.estado === 'completado' ? 100 : (cr.estado === 'en_proceso' ? 50 : 10);
+                        html += `
             <div class="border p-2 mb-2">
               <strong>${cr.nombre}</strong> (${cr.fecha_inicio} - ${cr.fecha_fin})
-              <div class="progress mt-1"><div class="progress-bar bg-${cr.estado==='completado'?'success':'warning'}" style="width:${pct}%">${cr.estado}</div></div>
+              <div class="progress mt-1"><div class="progress-bar bg-${cr.estado === 'completado' ? 'success' : 'warning'}" style="width:${pct}%">${cr.estado}</div></div>
               <small>Catequistas: ${cr.catequistas.join(', ') || '—'}</small>
             </div>`;
-        });
-      } else html += `<em>No está inscrito en cursos</em>`;
+                    });
+                } else html += `<em>No está inscrito en cursos</em>`;
 
-      document.getElementById('detalleContainer').innerHTML = html;
-      new bootstrap.Modal(document.getElementById('modalDetalleFeligres')).show();
-    })
-    .catch(err => alert("Error al cargar datos: " + err));
-}
-
-
-function abrirModalAsignar(idFeligres) {
-  document.getElementById('sacramento_id_feligres').value = idFeligres;
-
-  // Cargar opciones de sacramentos
-  fetch('php/obtener_sacramento.php')
-    .then(res => res.json())
-    .then(data => {
-      const select = document.getElementById('id_sacramento');
-      select.innerHTML = '<option value="">Seleccione</option>';
-      data.forEach(s => {
-        select.innerHTML += `<option value="${s.id_sacramento}">${s.nombre}</option>`;
-      });
-    });
-
-  new bootstrap.Modal(document.getElementById('modalAsignarSacramento')).show();
-}
-
-document.getElementById('formAsignarSacramento').addEventListener('submit', e => {
-  e.preventDefault();
-  const formData = new FormData(e.target);
-
-  fetch('php/asignar_sacramento.php', {
-    method: 'POST',
-    body: formData
-  })
-  .then(res => res.json())
-  .then(data => {
-    if (data.success) {
-      alert('Sacramento asignado correctamente');
-      bootstrap.Modal.getInstance(document.getElementById('modalAsignarSacramento')).hide();
-    } else {
-      alert('Error: ' + data.message);
+                document.getElementById('detalleContainer').innerHTML = html;
+                new bootstrap.Modal(document.getElementById('modalDetalleFeligres')).show();
+            })
+            .catch(err => alert("Error al cargar datos: " + err));
     }
-  });
-});
 
-function abrirModalVer(idFeligres) {
-  fetch('php/ver_sacramento.php?id=' + idFeligres)
-    .then(res => res.text())
-    .then(html => {
-      document.getElementById('listaSacramentos').innerHTML = html;
-      new bootstrap.Modal(document.getElementById('modalVerSacramentos')).show();
+
+    function abrirModalAsignar(idFeligres) {
+        document.getElementById('sacramento_id_feligres').value = idFeligres;
+
+        // Cargar opciones de sacramentos
+        fetch('php/obtener_sacramento.php')
+            .then(res => res.json())
+            .then(data => {
+                const select = document.getElementById('id_sacramento');
+                select.innerHTML = '<option value="">Seleccione</option>';
+                data.forEach(s => {
+                    select.innerHTML += `<option value="${s.id_sacramento}">${s.nombre}</option>`;
+                });
+            });
+
+        new bootstrap.Modal(document.getElementById('modalAsignarSacramento')).show();
+    }
+
+    document.getElementById('formAsignarSacramento').addEventListener('submit', e => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+
+        fetch('php/asignar_sacramento.php', {
+            method: 'POST',
+            body: formData
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Sacramento asignado correctamente');
+                    bootstrap.Modal.getInstance(document.getElementById('modalAsignarSacramento')).hide();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            });
     });
-}
- 
+
+    function abrirModalVer(idFeligres) {
+        fetch('php/ver_sacramento.php?id=' + idFeligres)
+            .then(res => res.text())
+            .then(html => {
+                document.getElementById('listaSacramentos').innerHTML = html;
+                new bootstrap.Modal(document.getElementById('modalVerSacramentos')).show();
+            });
+    }
+
 
     function asignarCatequesis() {
 
@@ -592,6 +766,7 @@ function abrirModalVer(idFeligres) {
 
     document.addEventListener('DOMContentLoaded', () => {
         asignarCatequesis()
+        tolstipsAcciones()
         const parroquia = document.getElementById('parroquia');
         const datosFeligres = document.getElementById('datosFeligres');
         const sacramento = document.getElementById('sacramento');
